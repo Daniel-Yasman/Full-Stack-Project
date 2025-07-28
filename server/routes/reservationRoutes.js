@@ -5,7 +5,7 @@ const {
   listReservations,
 } = require("../controllers/reservationController");
 
-router.post("/reservations", createReservation);
-router.get("/user/history", listReservations);
+router.post("/", createReservation);
+router.get("/", listReservations);
 
 module.exports = router;
