@@ -19,3 +19,8 @@ const login = async (req, res) => {
       .json({ message: "An error occurred while trying to log-in user" });
   }
 };
+
+module.exports = {
+  register,
+  login,
+};

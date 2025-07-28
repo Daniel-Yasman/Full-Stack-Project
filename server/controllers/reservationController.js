@@ -9,7 +9,7 @@ const createReservation = async (req, res) => {
   }
 };
 
-const listReservasions = async (req, res) => {
+const listReservations = async (req, res) => {
   try {
     console.log("history endpoint hit");
   } catch (error) {
@@ -18,4 +18,9 @@ const listReservasions = async (req, res) => {
       message: "An error occurred while trying to create get reservasions",
     });
   }
+};
+
+module.exports = {
+  createReservation,
+  listReservations,
 };

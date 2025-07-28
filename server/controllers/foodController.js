@@ -8,3 +8,6 @@ const listFoodItems = async (req, res) => {
       .json({ message: "An error occurred while trying to list food items" });
   }
 };
+module.exports = {
+  listFoodItems,
+};
