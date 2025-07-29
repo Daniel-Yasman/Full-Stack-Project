@@ -1,14 +1,14 @@
 const Reservation = require("../models/Reservation");
 
 const createReservation = async (req, res) => {
-  const { userId, foodItem, date, time, creditCard } = req.body;
-  if (!userId || !foodItem || !date || !time || !creditCard)
+  const { userId, foodId, date, time, creditCard } = req.body;
+  if (!userId || !foodId || !date || !time || !creditCard)
     return res.status(400).json({ message: "Missing fields" });
 
   try {
     const newReservation = new Reservation({
       userId,
-      foodItem,
+      foodId,
       date,
       time,
       creditCard,
