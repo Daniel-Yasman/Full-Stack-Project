@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function FoodList() {
   const [foods, setFoods] = useState([]);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
+  const handleReserve = (foodId) => {
+    navigate("/reserve", { state: { foodId } });
+  };
   useEffect(() => {
     const fetchFoods = async () => {
       const response = await fetch("/api/food");
@@ -27,6 +32,7 @@ function FoodList() {
       {foods.map((food) => (
         <div key={food._id}>
           <p>{food.name}</p>
+          <button onClick={() => handleReserve(food._id)}>Reserve</button>
         </div>
       ))}
       {message && <p>{message}</p>}
