@@ -5,7 +5,7 @@ import "./index.css";
 import App from "./App.jsx";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import FoodList from "./components/FoodList";
+import Menu from "./pages/Menu";
 import Reservation from "./pages/reservation.jsx";
 import MyReservations from "./pages/MyReservations";
 import Home from "./pages/Home";
@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/menu" element={<FoodList />} />
+        <Route path="/menu" element={<Menu />} />
         <Route path="/reserve" element={<Reservation />} />
         <Route path="/my-reservations" element={<MyReservations />} />
       </Routes>
