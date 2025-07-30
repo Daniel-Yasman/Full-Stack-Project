@@ -7,7 +7,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import FoodList from "./components/FoodList";
 import Reservation from "./pages/reservation.jsx";
-
+import MyReservations from "./pages/MyReservations";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
@@ -17,6 +17,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/login" element={<Login />} />
         <Route path="/menu" element={<FoodList />} />
         <Route path="/reserve" element={<Reservation />} />
+        <Route path="/my-reservations" element={<MyReservations />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
