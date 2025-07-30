@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { Link } from "react-router-dom";
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,6 +40,9 @@ function Register() {
 
   return (
     <div>
+      <div>
+        <Link to="/">Home</Link>
+      </div>
       <form onSubmit={handleSubmit}>
         <legend>Register</legend>
         <label>Full name</label>

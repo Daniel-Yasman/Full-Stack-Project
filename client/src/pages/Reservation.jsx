@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 function Reservation() {
   const location = useLocation();
   /*
@@ -71,6 +71,9 @@ function Reservation() {
   };
   return (
     <div>
+      <div>
+        <Link to="/">Home</Link>
+      </div>
       {message && <p>{message}</p>}
       {foodId && <p>{foodId}</p>}
       <form onSubmit={handleSubmit}>

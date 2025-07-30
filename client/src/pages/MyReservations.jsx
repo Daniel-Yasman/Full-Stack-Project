@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { Link } from "react-router-dom";
 function MyReservations() {
   // call fetch add users id via localstorage
   const userId = JSON.parse(localStorage.getItem("user"))._id;
@@ -28,6 +28,9 @@ function MyReservations() {
 
   return (
     <div>
+      <div>
+        <Link to="/">Home</Link>
+      </div>
       {userId && <p>{userId}</p>}
       {message && <p>{message}</p>}
       <h1>HUllu {name && <span>{name}</span>} welcom 2 home p4g3!</h1>
