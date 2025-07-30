@@ -8,11 +8,12 @@ import Login from "./pages/Login";
 import FoodList from "./components/FoodList";
 import Reservation from "./pages/reservation.jsx";
 import MyReservations from "./pages/MyReservations";
+import Home from "./pages/Home";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/menu" element={<FoodList />} />
