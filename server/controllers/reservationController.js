@@ -27,8 +27,11 @@ const createReservation = async (req, res) => {
 };
 
 const listReservations = async (req, res) => {
+  const { userId } = req.query;
+  // need to turn this into mongodb readable format
+  const objectId = new mongoose.Types.ObjectId(userId);
   try {
-    const reservations = await Reservation.find({});
+    const reservations = await Reservation.find({ userId: objectId });
 
     if (reservations.length === 0)
       return res.status(404).json({ message: "No reservations found" });
