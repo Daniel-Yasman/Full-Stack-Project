@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 function MyReservations() {
   // call fetch add users id via localstorage
-  const userId = JSON.parse(localStorage.getItem("user"))._id;
-  const name = JSON.parse(localStorage.getItem("user")).name;
+  const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
+  const name = JSON.parse(localStorage.getItem("user"))?.name || null;
   const [reservations, setReservations] = useState([]);
   const [message, setMessage] = useState("");
   useEffect(() => {
@@ -28,26 +28,33 @@ function MyReservations() {
 
   return (
     <div>
-      <div>
-        <Link to="/">Home</Link>
-      </div>
-      {userId && <p>{userId}</p>}
-      {message && <p>{message}</p>}
-      <h1>HUllu {name && <span>{name}</span>} welcom 2 home p4g3!</h1>
-      <div>
-        <p>Heree histori:</p>
-        {reservations.length === 0 ? (
-          <p>No reservations yet</p>
-        ) : (
-          reservations.map((reservation) => (
-            <div key={reservation._id}>
-              <div>{reservation.date}</div>
-              <div>{reservation.time}</div>
-              <div>{reservation.foodId.name}</div>
-            </div>
-          ))
-        )}
-      </div>
+      {userId ? (
+        <div>
+          <Link to="/">Home</Link>
+          {userId && <p>{userId}</p>}
+          {message && <p>{message}</p>}
+          <h1>HUllu {name && <span>{name}</span>} welcom 2 home p4g3!</h1>
+          <div>
+            <p>Heree histori:</p>
+            {reservations.length === 0 ? (
+              <p>No reservations yet</p>
+            ) : (
+              reservations.map((reservation) => (
+                <div key={reservation._id}>
+                  <div>{reservation.date}</div>
+                  <div>{reservation.time}</div>
+                  <div>{reservation.foodId.name}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <Link to="/">Home</Link>
+          <p>Log in first</p>
+        </div>
+      )}
     </div>
   );
 }
