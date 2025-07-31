@@ -1,15 +1,27 @@
 import { Link } from "react-router-dom";
+function logout() {
+  localStorage.removeItem("user");
+  window.location.reload();
+}
 function Home() {
-  const name = JSON.parse(localStorage.getItem("user"))?.name || "";
+  const user = JSON.parse(localStorage.getItem("user")) || null;
   return (
     <div>
-      {name ? <p>Welcome {name}!</p> : <p>Hello, please log in to begin!</p>}
+      {user?.name ? (
+        <p>Welcome {user.name}!</p>
+      ) : (
+        <p>Hello, please log in to begin!</p>
+      )}
       <ul>
         <li>
           <Link to="/register">Register</Link>
         </li>
         <li>
-          <Link to="/login">Login</Link>
+          {user ? (
+            <button onClick={logout}>Logout</button>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
         </li>
         <li>
           <Link to="/menu">Menu</Link>
