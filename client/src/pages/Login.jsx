@@ -57,6 +57,11 @@ function Login() {
         />
         <button type="submit">Login</button>
       </form>
+      <div>
+        <p>
+          New user? <Link to="/register">Register</Link> here
+        </p>
+      </div>
       {message && <p>{message}</p>}
     </div>
   );
