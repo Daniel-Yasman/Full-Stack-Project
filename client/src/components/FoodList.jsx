@@ -6,8 +6,8 @@ function FoodList() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleReserve = (foodId) => {
-    navigate("/reserve", { state: { foodId } });
+  const handleReserve = (food) => {
+    navigate("/reserve", { state: { food } });
   };
   useEffect(() => {
     const fetchFoods = async () => {
@@ -32,7 +32,7 @@ function FoodList() {
       {foods.map((food) => (
         <div key={food._id}>
           <p>{food.name}</p>
-          <button onClick={() => handleReserve(food._id)}>Reserve</button>
+          <button onClick={() => handleReserve(food)}>Reserve</button>
         </div>
       ))}
       {message && <p>{message}</p>}
