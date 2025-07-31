@@ -13,7 +13,8 @@ function Reservation() {
   now all I need is to make it work.
     */
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
-  const foodId = location.state.foodId;
+  const name = JSON.parse(localStorage.getItem("user"))?.name || null;
+  const food = location.state.food;
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -33,7 +34,7 @@ function Reservation() {
       },
       body: JSON.stringify({
         userId,
-        foodId,
+        foodId: food._id,
         date,
         time,
         creditCard: {
@@ -57,7 +58,7 @@ function Reservation() {
     setMessage(
       JSON.stringify({
         userId,
-        foodId,
+        foodId: food._id,
         date,
         time,
         creditCard: {
@@ -75,7 +76,8 @@ function Reservation() {
         <div>
           <Link to="/">Home</Link>
           {message && <p>{message}</p>}
-          {foodId && <p>{foodId}</p>}
+          {name && <p>{name}</p>}
+          {food?.name && <p>{food.name}</p>}
           <form onSubmit={handleSubmit}>
             <fieldset>
               <legend>Date & Time</legend>
