@@ -36,8 +36,15 @@ const createReservation = async (req, res) => {
   const { userId, foodId, date, time, creditCard } = req.body;
   if (!userId || !foodId || !date || !time || !creditCard)
     return res.status(400).json({ message: "Missing fields" });
-  if (time.slice(3) % 30 !== 0) {
-    return res.status(500).json({ message: "Invalid time" });
+  const hour = parseInt(time.slice(0, 2));
+  const minutes = parseInt(time.slice(3));
+  if (minutes % 30 !== 0) {
+    return res
+      .status(400)
+      .json({ message: "Only 30-minute intervals allowed" });
+  }
+  if (hour < 9 || hour > 16) {
+    return res.status(400).json({ message: "Only from 09:00 to 16:00" });
   }
 
   // date = 2025-08-01
