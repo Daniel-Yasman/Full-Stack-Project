@@ -1,9 +1,34 @@
 const User = require("../models/User");
 
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email.toLowerCase());
+}
+function isValidPassword(password) {
+  if (password.length < 8) return false;
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  return hasLetter && hasNumber;
+}
+function isValidIsraeliPhone(phone) {
+  const pattern = /^05\d{8}$/;
+  return pattern.test(phone);
+}
+
 const register = async (req, res) => {
   const { name, email, password, phone } = req.body;
   if (!name || !email || !password || !phone)
     return res.status(400).json({ message: "All fields must be filled" });
+  if (!name.trim())
+    return res.status(400).json({ message: "Name is required" });
+  if (
+    !isValidEmail(email) ||
+    !isValidPassword(password) ||
+    !isValidIsraeliPhone(phone)
+  )
+    return res.status(400).json({ message: "Invalid credentials" });
+  if (await User.findOne({ email }))
+    return res.status(400).json({ message: "Email already exists" });
   try {
     const newUser = new User({
       name,
