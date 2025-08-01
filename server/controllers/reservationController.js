@@ -36,6 +36,9 @@ const createReservation = async (req, res) => {
   const { userId, foodId, date, time, creditCard } = req.body;
   if (!userId || !foodId || !date || !time || !creditCard)
     return res.status(400).json({ message: "Missing fields" });
+  if (time.slice(3) % 30 !== 0) {
+    return res.status(500).json({ message: "Invalid time" });
+  }
 
   // date = 2025-08-01
   const year = date.slice(0, 4);
