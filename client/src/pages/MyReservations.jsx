@@ -5,7 +5,6 @@ function MyReservations() {
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
   const name = JSON.parse(localStorage.getItem("user"))?.name || null;
   const [reservations, setReservations] = useState([]);
-  const [message, setMessage] = useState("");
   useEffect(() => {
     const fetchReservations = async () => {
       const response = await fetch(`/api/reservations?userId=${userId}`);
@@ -16,9 +15,7 @@ function MyReservations() {
         } catch {
           errorData = { message: "Unknown error" };
         }
-        setMessage(errorData);
       }
-      setMessage("Success");
       const data = await response.json();
       setReservations(data.reservations);
     };
@@ -31,11 +28,8 @@ function MyReservations() {
       {userId ? (
         <div>
           <Link to="/">Home</Link>
-          {userId && <p>{userId}</p>}
-          {message && <p>{message}</p>}
-          <h1>HUllu {name && <span>{name}</span>} welcom 2 home p4g3!</h1>
+          <h1>{name && <span>{name}'s</span>} History</h1>
           <div>
-            <p>Heree histori:</p>
             {reservations.length === 0 ? (
               <p>No reservations yet</p>
             ) : (
