@@ -27,7 +27,14 @@ function MyReservations() {
     <div>
       {userId ? (
         <div>
-          <Link to="/">Home</Link>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/menu">Make a new reservation</Link>
+            </li>
+          </ul>
           <h1>{name && <span>{name}'s</span>} History</h1>
           <div>
             {reservations.length === 0 ? (
