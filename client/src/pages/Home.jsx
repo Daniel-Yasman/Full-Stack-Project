@@ -13,9 +13,7 @@ function Home() {
         <p>Hello, please log in to begin!</p>
       )}
       <ul>
-        <li>
-          <Link to="/register">Register</Link>
-        </li>
+        <li>{!user && <Link to="/register">Register</Link>}</li>
         <li>
           {user ? (
             <button onClick={logout}>Logout</button>
