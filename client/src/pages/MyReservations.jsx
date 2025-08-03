@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { DateTime } from "luxon";
 function MyReservations() {
-  // call fetch add users id via localstorage
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
   const name = JSON.parse(localStorage.getItem("user"))?.name || null;
   const [reservations, setReservations] = useState([]);
+  const [message, setMessage] = useState("");
   useEffect(() => {
     const fetchReservations = async () => {
       const response = await fetch(`/api/reservations?userId=${userId}`);
@@ -15,16 +16,33 @@ function MyReservations() {
         } catch {
           errorData = { message: "Unknown error" };
         }
+        setMessage(errorData.message);
       }
       const data = await response.json();
       setReservations(data.reservations);
     };
-
     fetchReservations();
   }, []);
 
+  const handleDelete = async (id) => {
+    const response = await fetch(`/api/reservations/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: "Unknown error" };
+      }
+      setMessage(errorData.message);
+      return;
+    } else setMessage("Success");
+  };
+  // Turn {message && <p>{message}</p>} into a component popup eventually
   return (
     <div>
+      {message && <p>{message}</p>}
       {userId ? (
         <div>
           <ul>
@@ -45,6 +63,9 @@ function MyReservations() {
                   <div>{reservation.date}</div>
                   <div>{reservation.time}</div>
                   <div>{reservation.foodId.name}</div>
+                  <button onClick={() => handleDelete(reservation._id)}>
+                    Delete reservation
+                  </button>
                 </div>
               ))
             )}
