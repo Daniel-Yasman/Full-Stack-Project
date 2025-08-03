@@ -65,13 +65,17 @@ const deleteReservation = async (req, res) => {
       return res.status(404).json({ message: "No reservation found" });
 
     const now = DateTime.now().setZone("Asia/Jerusalem");
-    const compare = DateTime.fromISO(reservation.time, {
-      zone: "Asia/Jerusalem",
-    });
+    const compare = DateTime.fromJSDate(reservation.time, {
+      zone: "utc",
+    }).setZone("Asia/Jerusalem");
     const diff = compare.diff(now, "hours").hours;
 
     if (diff < 24)
-      return res.status(401).json({ message: "Cancellation window passed" });
+      return res
+        .status(401)
+        .json({
+          message: "Cancellation window passed, please contact support",
+        });
 
     await reservation.deleteOne();
 
