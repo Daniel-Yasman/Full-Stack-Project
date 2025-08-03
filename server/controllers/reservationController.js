@@ -60,9 +60,20 @@ const listReservations = async (req, res) => {
 const deleteReservation = async (req, res) => {
   const { id } = req.params;
   try {
-    const reservation = await Reservation.findByIdAndDelete(id);
+    const reservation = await Reservation.findById(id);
     if (!reservation)
       return res.status(404).json({ message: "No reservation found" });
+
+    const now = DateTime.now().setZone("Asia/Jerusalem");
+    const compare = DateTime.fromISO(reservation.time, {
+      zone: "Asia/Jerusalem",
+    });
+    const diff = compare.diff(now, "hours").hours;
+
+    if (diff < 24)
+      return res.status(401).json({ message: "Cancellation window passed" });
+
+    await reservation.deleteOne();
 
     return res.status(200).json({ message: "Success" });
   } catch (error) {
