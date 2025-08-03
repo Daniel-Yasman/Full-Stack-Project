@@ -1,69 +1,25 @@
 const Reservation = require("../models/Reservation");
 const mongoose = require("mongoose");
-
-function numberToWord(month) {
-  switch (month) {
-    case "01":
-      return "January";
-    case "02":
-      return "February";
-    case "03":
-      return "March";
-    case "04":
-      return "April";
-    case "05":
-      return "May";
-    case "06":
-      return "June";
-    case "07":
-      return "July";
-    case "08":
-      return "August";
-    case "09":
-      return "September";
-    case "10":
-      return "October";
-    case "11":
-      return "November";
-    case "12":
-      return "December";
-    default:
-      return "Invalid";
-  }
-}
+const { DateTime } = require("luxon");
 
 const createReservation = async (req, res) => {
-  const { userId, foodId, date, time, creditCard } = req.body;
-  if (!userId || !foodId || !date || !time || !creditCard)
+  const { userId, foodId, time, creditCard } = req.body;
+  if (!userId || !foodId || !time || !creditCard)
     return res.status(400).json({ message: "Missing fields" });
-  const hour = parseInt(time.slice(0, 2));
-  const minutes = parseInt(time.slice(3));
-  if (minutes % 30 !== 0) {
-    return res
-      .status(400)
-      .json({ message: "Only 30-minute intervals allowed" });
-  }
-  if (hour < 9 || hour > 16) {
-    return res.status(400).json({ message: "Only from 09:00 to 16:00" });
-  }
 
-  // date = 2025-08-01
-  const year = date.slice(0, 4);
-  const month = numberToWord(date.slice(5, 7));
-  const day = parseInt(date.slice(8));
-
-  if (month === "Invalid") {
-    return res.status(500).json({ message: "Invalid month value" });
-  }
-
-  const formattedDate = `${month} ${day}, ${year}`;
+  // fromISO, because the value is a {type:Date}.
+  // toJSDate, because mongoDB only accepts Native Dates.
+  // This function converts js's iso (Three hours backwards) to the correct time.
+  // then turns it into a mongoDB readable version.
+  const israelTime = DateTime.fromISO(time, {
+    zone: "Asia/Jerusalem",
+  }).toJSDate();
 
   try {
     const newReservation = new Reservation({
       userId,
       foodId,
-      date: formattedDate,
-      time,
+      time: israelTime,
       creditCard,
     });
     await newReservation.save();
