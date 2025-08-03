@@ -4,8 +4,7 @@ const reservationSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     foodId: { type: mongoose.Schema.Types.ObjectId, ref: "Food" },
-    date: String,
-    time: String,
+    time: Date,
     creditCard: {
       cardNumber: String,
       cardHolder: String,
