@@ -1,5 +1,5 @@
 const User = require("../models/User");
-async function addToCart() {
+async function addToCart(req, res) {
   const { userId } = req.params;
   const { foodId, quantity } = req.body;
   try {
