@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   phone: String,
+  cart: {
+    foodId: { type: mongoose.Schema.Types.ObjectId, ref: "Food" },
+    quantity: Number,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
