@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Cart from "../components/Cart";
 function logout() {
   localStorage.removeItem("user");
   window.location.reload();
@@ -7,11 +8,14 @@ function Home() {
   const user = JSON.parse(localStorage.getItem("user")) || null;
   return (
     <div>
-      {user?.name ? (
-        <p>Welcome {user.name}!</p>
-      ) : (
-        <p>Hello, please log in to begin!</p>
-      )}
+      <div>
+        {user?.name ? (
+          <p>Welcome {user.name}!</p>
+        ) : (
+          <p>Hello, please log in to begin!</p>
+        )}
+        {user ? <Cart /> : null}
+      </div>
       <ul>
         <li>{!user && <Link to="/register">Register</Link>}</li>
         <li>
