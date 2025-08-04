@@ -12,11 +12,12 @@ connectDB();
 const authRoutes = require("./routes/authRoutes");
 const foodRoutes = require("./routes/foodRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 app.use("/api", authRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/reservations", reservationRoutes);
-
+app.use("/api/user/", userRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
