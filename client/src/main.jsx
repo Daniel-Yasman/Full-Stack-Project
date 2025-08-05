@@ -6,7 +6,7 @@ import App from "./App.jsx";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
-import Reservation from "./pages/reservation.jsx";
+import Reservation from "./pages/Reservation.jsx";
 import MyReservations from "./pages/MyReservations";
 import Home from "./pages/Home";
 createRoot(document.getElementById("root")).render(
