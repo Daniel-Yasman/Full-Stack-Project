@@ -41,12 +41,16 @@ function FoodList() {
       return;
     } else setMessage("Added to cart");
   };
-  // add "Add to cart" button, add handleAddToCart(food)
+
   return (
     <div>
       {foods.map((food) => (
-        <div key={food._id}>
-          <p>{food.name}</p>
+        <div className="border-1 my-1" key={food._id}>
+          <div className="flex flex-col items-center">
+            <p>{food.name}</p>
+            <p>{food.price}$</p>
+            <img className="w-25 h-25 rounded-md" src={food.image} />
+          </div>
           <button onClick={() => handleAddToCart(food._id, 1)}>
             Add to cart
           </button>
