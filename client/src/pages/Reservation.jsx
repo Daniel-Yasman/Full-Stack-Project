@@ -1,29 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import SuccessModal from "../components/SuccessModal";
 function Reservation() {
   const location = useLocation();
-  /*
-  in order to create reservation I need
-  • userId
-  • foodId
-  • date
-  • time
-  • creditCard:{cardNumber,cardHolder,expirationDate,cvv}
-  I get sent the foodId on button click, userId is in localStorage
-  now all I need is to make it work.
-    */
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
   const name = JSON.parse(localStorage.getItem("user"))?.name || null;
-  const food = location.state.food;
+  // make a cart
+  const [cart, setCart] = useState([]);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [cvv, setCvv] = useState("");
-
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const response = await fetch(`/api/user/${userId}/cart`);
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { message: "Unknown error" };
+        }
+        setMessage(`${errorData}.`);
+        return;
+      }
+      const data = await response.json();
+      setCart(data.cart);
+    };
+    fetchCart();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +78,23 @@ function Reservation() {
               <Link to="/">Home</Link>
               {message && <p>{message}</p>}
               {name && <p>{name}</p>}
-              {food?.name && <p>{food.name}</p>}
+              {cart.length === 0 ? (
+                <p>Cart is empty.</p>
+              ) : (
+                <div>
+                  <header>Cart:</header>
+                  <div>
+                    {cart.map((item) => (
+                      <div key={item._id}>
+                        <div className="flex gap-1 justify-center">
+                          <p>{item.foodId.name}</p>
+                          <p>{item.quantity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <form onSubmit={handleSubmit}>
                 <fieldset>
                   <legend>Date & Time</legend>
