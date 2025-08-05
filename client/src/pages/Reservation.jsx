@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SuccessModal from "../components/SuccessModal";
 function Reservation() {
-  const location = useLocation();
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
   const name = JSON.parse(localStorage.getItem("user"))?.name || null;
   // make a cart
@@ -85,10 +84,15 @@ function Reservation() {
                   <header>Cart:</header>
                   <div>
                     {cart.map((item) => (
-                      <div key={item._id}>
-                        <div className="flex gap-1 justify-center">
+                      <div className="border-1" key={item._id}>
+                        <div className="flex flex-col items-center">
                           <p>{item.foodId.name}</p>
-                          <p>{item.quantity}</p>
+                          <p>{item.foodId.price}$</p>
+                          <p>x{item.quantity}</p>
+                          <img
+                            className="w-25 h-25 rounded-md"
+                            src={item.foodId.image}
+                          />
                         </div>
                       </div>
                     ))}
