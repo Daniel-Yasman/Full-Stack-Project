@@ -3,14 +3,15 @@ const mongoose = require("mongoose");
 const { DateTime } = require("luxon");
 
 const createReservation = async (req, res) => {
-  const { userId, foodId, time, creditCard } = req.body;
-  if (!userId || !foodId || !time || !creditCard)
+  const { userId, cart, time, creditCard } = req.body;
+  if (
+    !userId ||
+    !Array.isArray(cart) ||
+    cart.length === 0 ||
+    !time ||
+    !creditCard
+  )
     return res.status(400).json({ message: "Missing fields" });
-
-  // fromISO, because the value is a {type:Date}.
-  // toJSDate, because mongoDB only accepts Native Dates.
-  // This function converts js's iso (Three hours backwards) to the correct time.
-  // then turns it into a mongoDB readable version.
   const israelTime = DateTime.fromISO(time, {
     zone: "Asia/Jerusalem",
   }).toJSDate();
@@ -18,7 +19,7 @@ const createReservation = async (req, res) => {
   try {
     const newReservation = new Reservation({
       userId,
-      foodId,
+      cart,
       time: israelTime,
       creditCard,
     });
@@ -42,7 +43,9 @@ const listReservations = async (req, res) => {
   try {
     const reservations = await Reservation.find({ userId: objectId }).populate(
       "foodId",
-      "name"
+      "name",
+      "price",
+      "image"
     );
 
     if (reservations.length === 0)
@@ -71,11 +74,9 @@ const deleteReservation = async (req, res) => {
     const diff = compare.diff(now, "hours").hours;
 
     if (diff < 24)
-      return res
-        .status(401)
-        .json({
-          message: "Cancellation window passed, please contact support",
-        });
+      return res.status(401).json({
+        message: "Cancellation window passed, please contact support",
+      });
 
     await reservation.deleteOne();
 
