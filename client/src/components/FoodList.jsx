@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useCart } from "../context/CartContext";
 
-function FoodList({ fetchCart }) {
+function FoodList() {
   const [foods, setFoods] = useState([]);
   const [message, setMessage] = useState("");
+  const { fetchCart } = useCart();
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
 
   useEffect(() => {
@@ -15,7 +17,7 @@ function FoodList({ fetchCart }) {
         } catch {
           errorData = { message: "Unknown error" };
         }
-        setMessage(`${errorData}.`);
+        setMessage(`${errorData.message}.`);
         return;
       }
       const data = await response.json();
@@ -23,6 +25,7 @@ function FoodList({ fetchCart }) {
     };
     fetchFoods();
   }, []);
+
   const handleAddToCart = async (foodId, quantity) => {
     const response = await fetch(`/api/user/${userId}/cart`, {
       method: "POST",
@@ -38,12 +41,11 @@ function FoodList({ fetchCart }) {
       } catch {
         errorData = { message: "Unknown error" };
       }
-
       setMessage(errorData.message);
       return;
     } else {
       setMessage("Added to cart");
-      if (fetchCart) await fetchCart();
+      await fetchCart(); // comes from context now
     }
   };
 
@@ -65,4 +67,5 @@ function FoodList({ fetchCart }) {
     </div>
   );
 }
+
 export default FoodList;
