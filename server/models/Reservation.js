@@ -11,6 +11,12 @@ const reservationSchema = new mongoose.Schema(
       expirationDate: String,
       cvv: String,
     },
+    cart: [
+      {
+        foodId: { type: mongoose.Schema.Types.ObjectId, ref: "Food" },
+        quantity: Number,
+      },
+    ],
   },
   { timestamps: true }
 );
