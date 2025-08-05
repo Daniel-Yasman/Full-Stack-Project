@@ -14,7 +14,7 @@ function Home() {
         ) : (
           <p>Hello, please log in to begin!</p>
         )}
-        {user ? <Cart /> : null}
+        {user && <Cart />}
       </div>
       <ul>
         <li>{!user && <Link to="/register">Register</Link>}</li>
@@ -28,6 +28,11 @@ function Home() {
         <li>
           <Link to="/menu">Menu</Link>
         </li>
+        {user && (
+          <li>
+            <Link to="/reserve">Make a reservation</Link>
+          </li>
+        )}
         <li>
           <Link to="/my-reservations">User Page</Link>
         </li>
