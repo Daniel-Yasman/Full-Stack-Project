@@ -23,6 +23,7 @@ async function getCart(req, res) {
   try {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
+    await user.populate("cart.foodId");
     return res.status(200).json({ message: "Success", cart: user.cart });
   } catch (error) {
     console.error(error);
