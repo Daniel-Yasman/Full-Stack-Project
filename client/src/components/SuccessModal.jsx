@@ -3,17 +3,27 @@ import { DateTime } from "luxon";
 
 function SuccessModal({ name, food, time }) {
   return (
-    <div className="border-1 w-[350px] h-[225px] flex flex-col items-center justify-center absolute z-10 bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <div className="border-1 p-4 flex flex-col items-center justify-center absolute z-10 bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <Link to="/">X</Link>
       <h1>Huzzah!</h1>
       <p>Your order was successfull {name}!</p>
       <p>
-        On
+        On{" "}
         {DateTime.fromISO(time)
           .setZone("Asia/Jerusalem")
-          .toFormat("MMMM d, yyyy - HH:mm")}{" "}
-        your {food} will be waiting for you!
+          .toFormat("MMMM d, yyyy - HH:mm")}
+        , your food will be ready:
       </p>
+      <div>
+        {Array.isArray(food) &&
+          food.map((item) => (
+            <div className="py-1 flex gap-1 items-center" key={item._id}>
+              <img className="w-10 h-10 rounded-md" src={item.foodId.image} />
+              <div>{item.foodId.name}</div>
+              <div>x{item.quantity}</div>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }
