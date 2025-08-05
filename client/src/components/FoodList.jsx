@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
-function FoodList() {
+function FoodList({ fetchCart }) {
   const [foods, setFoods] = useState([]);
   const [message, setMessage] = useState("");
   const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
+
   useEffect(() => {
     const fetchFoods = async () => {
       const response = await fetch("/api/food");
@@ -37,9 +38,13 @@ function FoodList() {
       } catch {
         errorData = { message: "Unknown error" };
       }
+
       setMessage(errorData.message);
       return;
-    } else setMessage("Added to cart");
+    } else {
+      setMessage("Added to cart");
+      if (fetchCart) await fetchCart();
+    }
   };
 
   return (
