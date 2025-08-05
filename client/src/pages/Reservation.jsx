@@ -8,6 +8,7 @@ function Reservation() {
   const [cart, setCart] = useState([]);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const datetime = `${date}T${time}`;
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
@@ -43,9 +44,8 @@ function Reservation() {
       },
       body: JSON.stringify({
         userId,
-        foodId: food._id,
-        date,
-        time,
+        cart,
+        time: datetime,
         creditCard: {
           cardNumber,
           cardHolder,
@@ -69,7 +69,7 @@ function Reservation() {
   return (
     <div>
       {message === "Success" ? (
-        <SuccessModal name={name} food={food.name} date={date} time={time} />
+        <SuccessModal name={name} food={cart} time={datetime} />
       ) : (
         <div>
           {userId ? (
