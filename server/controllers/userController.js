@@ -50,11 +50,26 @@ async function updateCart(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ message: "An error occurred while trying to fetch the cart" });
+      .json({ message: "An error occurred while trying to update the cart" });
+  }
+}
+async function removeItem(req, res) {
+  const { userId, foodId } = req.params;
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    await User.updateOne({ _id: userId }, { $pull: { cart: { foodId } } });
+    return res.status(200).json({ message: "Item removed successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while trying to remove the item" });
   }
 }
 module.exports = {
   addToCart,
   getCart,
   updateCart,
+  removeItem,
 };
