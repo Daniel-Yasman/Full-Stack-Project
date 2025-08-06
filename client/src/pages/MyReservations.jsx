@@ -59,10 +59,28 @@ function MyReservations() {
               <p>No reservations yet</p>
             ) : (
               reservations.map((reservation) => (
-                <div key={reservation._id}>
-                  <div>{reservation.date}</div>
-                  <div>{reservation.time}</div>
-                  <div>{reservation.foodId.name}</div>
+                <div className="border-1 flex flex-col" key={reservation._id}>
+                  <div>
+                    At:{" "}
+                    {DateTime.fromISO(reservation.time)
+                      .setZone("Asia/Jerusalem")
+                      .toFormat("MMMM d, yyyy - HH:mm")}
+                  </div>
+                  {reservation.cart.map((cart) => (
+                    <div
+                      className="flex flex-col gap-1 items-center"
+                      key={cart._id}
+                    >
+                      <div className="flex gap-1">
+                        <div>{cart.foodId.name}</div>
+                        <div>x{cart.quantity}</div>
+                      </div>
+                      <img
+                        className="w-25 h-25 rounded-md"
+                        src={cart.foodId.image}
+                      />
+                    </div>
+                  ))}
                   <button onClick={() => handleDelete(reservation._id)}>
                     Delete reservation
                   </button>
