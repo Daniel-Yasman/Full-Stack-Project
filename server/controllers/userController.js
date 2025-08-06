@@ -32,7 +32,29 @@ async function getCart(req, res) {
       .json({ message: "An error occurred while trying to fetch the cart" });
   }
 }
+
+async function updateCart(req, res) {
+  const { userId } = req.params;
+  const { foodId, quantity } = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!foodId || quantity === undefined)
+      return res.status(400).json({ message: "Missing fields" });
+    await User.findOneAndUpdate(
+      { _id: userId, "cart.foodId": foodId },
+      { $set: { "cart.$.quantity": quantity } }
+    );
+    return res.status(200).json({ message: "Cart updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while trying to fetch the cart" });
+  }
+}
 module.exports = {
   addToCart,
   getCart,
+  updateCart,
 };
