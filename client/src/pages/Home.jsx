@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import Cart from "../components/Cart";
+import { useCart } from "../context/CartContext";
 function logout() {
   localStorage.removeItem("user");
   window.location.reload();
 }
 function Home() {
   const user = JSON.parse(localStorage.getItem("user")) || null;
+  const { cartCount } = useCart();
   return (
     <div>
       <div>
@@ -14,7 +15,7 @@ function Home() {
         ) : (
           <p>Hello, please log in to begin!</p>
         )}
-        {user && <Cart />}
+        {user && <Link to="/cart">Cart ({cartCount})</Link>}
       </div>
       <ul>
         <li>{!user && <Link to="/register">Register</Link>}</li>
