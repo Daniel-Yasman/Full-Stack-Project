@@ -20,13 +20,36 @@ export function CartProvider({ children }) {
     }
   };
 
+  const updateCartItem = async (foodId, quantity) => {
+    await fetch(`/api/user/${userId}/cart`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ foodId, quantity }),
+    });
+    await fetchCart();
+  };
+
+  const removeCartItem = async (foodId) => {
+    await fetch(`/api/user/${userId}/cart/${foodId}`, { method: "DELETE" });
+    await fetchCart();
+  };
+
   useEffect(() => {
     fetchCart();
   }, [userId]);
 
   return (
     <CartContext.Provider
-      value={{ cartCount, fetchCart, setCartCount, cartItems }}
+      value={{
+        cartCount,
+        cartItems,
+        fetchCart,
+        setCartCount,
+        updateCartItem,
+        removeCartItem,
+      }}
     >
       {children}
     </CartContext.Provider>
