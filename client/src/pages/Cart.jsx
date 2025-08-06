@@ -1,9 +1,11 @@
 import { useCart } from "../context/CartContext";
+import { Link } from "react-router-dom";
 function Cart() {
   const { cartItems, cartCount, updateCartItem, removeCartItem } = useCart();
 
   return (
     <div>
+      <Link to="/">Home</Link>
       {cartCount === 1 ? <p>{cartCount} Item</p> : <p>{cartCount} Items</p>}
       {cartItems.map((item) => (
         <div key={item.foodId._id}>
