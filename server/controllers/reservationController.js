@@ -38,14 +38,10 @@ const createReservation = async (req, res) => {
 
 const listReservations = async (req, res) => {
   const { userId } = req.query;
-  // need to turn this into mongodb readable format
-  const objectId = new mongoose.Types.ObjectId(userId);
   try {
-    const reservations = await Reservation.find({ userId: objectId }).populate(
-      "foodId",
-      "name",
-      "price",
-      "image"
+    const reservations = await Reservation.find({ userId }).populate(
+      "cart.foodId",
+      "name price image"
     );
 
     if (reservations.length === 0)
