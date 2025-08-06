@@ -3,11 +3,11 @@ const router = express.Router();
 const {
   addToCart,
   getCart,
-  updateCart,
-  removeItem,
+  updateCartItem,
+  removeCartItem,
 } = require("../controllers/userController");
 router.post("/:userId/cart", addToCart);
 router.get("/:userId/cart", getCart);
-router.patch("/:userId/cart", updateCart);
-router.delete("/:userId/cart/:foodId", removeItem);
+router.patch("/:userId/cart", updateCartItem);
+router.delete("/:userId/cart/:foodId", removeCartItem);
 module.exports = router;

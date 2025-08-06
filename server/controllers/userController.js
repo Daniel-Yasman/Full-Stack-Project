@@ -33,7 +33,7 @@ async function getCart(req, res) {
   }
 }
 
-async function updateCart(req, res) {
+async function updateCartItem(req, res) {
   const { userId } = req.params;
   const { foodId, quantity } = req.body;
   try {
@@ -53,7 +53,7 @@ async function updateCart(req, res) {
       .json({ message: "An error occurred while trying to update the cart" });
   }
 }
-async function removeItem(req, res) {
+async function removeCartItem(req, res) {
   const { userId, foodId } = req.params;
   try {
     const user = await User.findById(userId);
@@ -70,6 +70,6 @@ async function removeItem(req, res) {
 module.exports = {
   addToCart,
   getCart,
-  updateCart,
-  removeItem,
+  updateCartItem,
+  removeCartItem,
 };
