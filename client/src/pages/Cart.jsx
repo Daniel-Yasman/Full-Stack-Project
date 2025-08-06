@@ -1,11 +1,10 @@
 import { useCart } from "../context/CartContext";
-import { useState, useEffect } from "react";
 function Cart() {
-  const { cartItems, fetchCart, updateCartItem, removeCartItem } = useCart();
+  const { cartItems, cartCount, updateCartItem, removeCartItem } = useCart();
 
   return (
     <div>
-      immacart
+      {cartCount === 1 ? <p>{cartCount} Item</p> : <p>{cartCount} Items</p>}
       {cartItems.map((item) => (
         <div key={item.foodId._id}>
           <p>{item.foodId.name}</p>
