@@ -41,6 +41,8 @@ async function updateCartItem(req, res) {
     if (!user) return res.status(404).json({ message: "User not found" });
     if (!foodId || quantity === undefined)
       return res.status(400).json({ message: "Missing fields" });
+    if (quantity > 10 || quantity < 1)
+      return res.status(400).json({ message: "Quantity limit reached" });
     await User.findOneAndUpdate(
       { _id: userId, "cart.foodId": foodId },
       { $set: { "cart.$.quantity": quantity } }
