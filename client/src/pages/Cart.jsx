@@ -12,16 +12,36 @@ function Cart() {
           <p>{item.foodId.name}</p>
           <p>{item.foodId.price}$</p>
           <div>x{item.quantity}</div>
-          <button
-            onClick={() => updateCartItem(item.foodId._id, item.quantity + 1)}
-          >
-            +
-          </button>
-          <button
-            onClick={() => updateCartItem(item.foodId._id, item.quantity - 1)}
-          >
-            -
-          </button>
+          {item.quantity >= 10 ? (
+            <button
+              disabled={true}
+              onClick={() => console.log("Cant add no more.")}
+              className="opacity-50"
+            >
+              +
+            </button>
+          ) : (
+            <button
+              onClick={() => updateCartItem(item.foodId._id, item.quantity + 1)}
+            >
+              +
+            </button>
+          )}
+          {item.quantity <= 1 ? (
+            <button
+              disabled={true}
+              className="opacity-50"
+              onClick={() => console.log("Cant remove no more.")}
+            >
+              -
+            </button>
+          ) : (
+            <button
+              onClick={() => updateCartItem(item.foodId._id, item.quantity - 1)}
+            >
+              -
+            </button>
+          )}
           <button onClick={() => removeCartItem(item.foodId._id)}>
             Remove item
           </button>
