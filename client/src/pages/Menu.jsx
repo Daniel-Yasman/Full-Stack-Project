@@ -10,7 +10,9 @@ function Menu() {
     <div>
       <div>
         <Link to="/">Home</Link>
-        <Cart cartCount={cartCount} />
+        <Link to="/cart">
+          <Cart cartCount={cartCount} />
+        </Link>
       </div>
       <FoodList fetchCart={fetchCart} />
     </div>
