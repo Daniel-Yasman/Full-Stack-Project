@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const { sign } = require("../utils/jwt");
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneIL = /^05\d{8}$/;
 
@@ -77,7 +78,15 @@ const login = async (req, res) => {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ error: "invalid_credentials" });
 
-    return res
+    const token = sign(user._id);
+    res
+      .cookie(process.env.COOKIE_NAME, token, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 15 * 60 * 1000,
+        path: "/",
+      })
       .status(200)
       .json({ _id: user._id, name: user.name, email: user.email });
   } catch (err) {
