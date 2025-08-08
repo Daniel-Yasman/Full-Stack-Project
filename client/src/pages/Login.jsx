@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 function Login() {
   const [email, setEmail] = useState("");
@@ -30,7 +30,7 @@ function Login() {
       return;
     }
     const data = await response.json();
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("user", JSON.stringify(data));
     setMessage("Success");
     setEmail("");
     setPassword("");
