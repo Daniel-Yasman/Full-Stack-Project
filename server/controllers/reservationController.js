@@ -1,4 +1,5 @@
 const Reservation = require("../models/Reservation");
+const Food = require("../models/Food");
 const mongoose = require("mongoose");
 const { DateTime } = require("luxon");
 
@@ -12,6 +13,12 @@ const createReservation = async (req, res) => {
     !creditCard
   )
     return res.status(400).json({ message: "Missing fields" });
+
+  const ids = cart.map((item) => item.foodId);
+  const count = await Food.countDocuments({ _id: { $in: ids } });
+  if (count !== ids.length)
+    return res.status(400).json({ error: "invalid_foodId" });
+
   const israelTime = DateTime.fromISO(time, {
     zone: "Asia/Jerusalem",
   }).toJSDate();
