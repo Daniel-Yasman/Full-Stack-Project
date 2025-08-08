@@ -1,49 +1,59 @@
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneIL = /^05\d{8}$/;
 
-function isValidEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email.toLowerCase());
+function isValidEmail(s) {
+  return typeof s === "string" && emailRe.text(s);
 }
-function isValidPassword(password) {
-  if (password.length < 8) return false;
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  return hasLetter && hasNumber;
+
+function isValidPassword(s) {
+  if (typeof s !== "string" || s.length < 8) return false;
+  return /[a-zA-z]/.text(s) && /[0-9]/.text(s);
 }
-function isValidIsraeliPhone(phone) {
-  const pattern = /^05\d{8}$/;
-  return pattern.test(phone);
+
+function isValidIsraeliPhone(s) {
+  return typeof s === "string" && phoneIL.test(s);
 }
 
 const register = async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  let { name, email, password, phone } = req.body || {};
+  name = typeof name === "string" ? name.trim() : "";
+  email = typeof email === "string" ? email.trim().toLowerCase() : "";
+  phone = typeof phone === "string" ? phone.trim() : "";
+
   if (!name || !email || !password || !phone)
-    return res.status(400).json({ message: "All fields must be filled" });
-  if (!name.trim())
-    return res.status(400).json({ message: "Name is required" });
+    return res.status(400).json({
+      error: "missing_fields",
+      details: ["name", "email", "password", "phone"],
+    });
+
   if (
     !isValidEmail(email) ||
     !isValidPassword(password) ||
     !isValidIsraeliPhone(phone)
   )
-    return res.status(400).json({ message: "Invalid credentials" });
-  if (await User.findOne({ email }))
-    return res.status(400).json({ message: "Email already exists" });
+    return res.status(400).json({ error: "invalid_input" });
+
+  const exists = await User.findOne({ email }).lean();
+  if (exists) return res.status(409).json({ error: "email_exists" });
+
   try {
-    const newUser = new User({
+    const cost = Number(process.env.BCRYPT_COST || 10);
+    const passwordHash = await bcrypt.hash(password, cost);
+    const user = await User.create({
       name,
       email,
-      password,
+      password: passwordHash,
       phone,
       cart: [],
     });
-    await newUser.save();
-    return res.status(200).json({ message: "User created successfully" });
-  } catch (error) {
-    console.error(error.message);
     return res
-      .status(500)
-      .json({ message: "An error occurred while trying to register user" });
+      .status(201)
+      .json({ _id: user._id, name: user.name, email: user.email });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "register_failed" });
   }
 };
 
