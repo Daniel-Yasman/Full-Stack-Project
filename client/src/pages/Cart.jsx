@@ -64,7 +64,7 @@ function Cart() {
           ))}
         </div>
       )}
-      <Link to="/reserve">Checkout</Link>
+      {cartCount !== 0 ? <Link to="/reserve">Checkout</Link> : ""}
     </div>
   );
 }
