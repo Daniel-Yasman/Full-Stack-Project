@@ -4,12 +4,12 @@ const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneIL = /^05\d{8}$/;
 
 function isValidEmail(s) {
-  return typeof s === "string" && emailRe.text(s);
+  return typeof s === "string" && emailRe.test(s);
 }
 
 function isValidPassword(s) {
   if (typeof s !== "string" || s.length < 8) return false;
-  return /[a-zA-z]/.text(s) && /[0-9]/.text(s);
+  return /[a-zA-z]/.test(s) && /[0-9]/.test(s);
 }
 
 function isValidIsraeliPhone(s) {
