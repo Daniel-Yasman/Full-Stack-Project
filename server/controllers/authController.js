@@ -58,30 +58,31 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ message: "All fields must be filled" });
-  if (!isValidEmail(email) || !isValidPassword(password))
-    return res.status(400).json({ message: "Invalid credentials" });
+  let { email, password } = req.body || {};
+  email = typeof email === "string" ? email.trim().toLowerCase() : "";
+  const passOk = typeof password === "string" && password.length > 0;
+
+  if (!email || !passOk)
+    return res
+      .status(400)
+      .json({ error: "missing_fields", details: ["email", "password"] });
+
+  if (!isValidEmail(email))
+    return res.status(400).json({ error: "invalid_input" });
+
   try {
     const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: "invalid_credentials" });
 
-    if (!user || user.password != password)
-      return res.status(401).json({ message: "Invalid credentials" });
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(401).json({ error: "invalid_credentials" });
 
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.error(error.message);
     return res
-      .status(500)
-      .json({ message: "An error occurred while trying to log-in user" });
+      .status(200)
+      .json({ _id: user._id, name: user.name, email: user.email });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "login_failed" });
   }
 };
 
