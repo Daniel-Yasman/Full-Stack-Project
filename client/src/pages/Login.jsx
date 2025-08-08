@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,26 +13,13 @@ function Login() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         email,
         password,
       }),
     });
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: "Unknown error" };
-      }
-      setMessage(`${errorData.message}.`);
-      return;
-    }
-    const data = await response.json();
-    localStorage.setItem("user", JSON.stringify(data));
-    setMessage("Success");
-    setEmail("");
-    setPassword("");
+    if (!response.ok) return;
     navigate("/");
   };
   return (
@@ -62,7 +48,6 @@ function Login() {
           New user? <Link to="/register">Register</Link> here
         </p>
       </div>
-      {message && <p>{message}</p>}
     </div>
   );
 }
