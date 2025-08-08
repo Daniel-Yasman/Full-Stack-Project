@@ -1,10 +1,17 @@
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
+import { SyncLoader } from "react-spinners";
 function Cart() {
-  const { cartItems, cartCount, updateCartItem, removeCartItem } = useCart();
+  const { loading, cartItems, cartCount, updateCartItem, removeCartItem } =
+    useCart();
+  if (loading) return <SyncLoader color="#000000" />;
+
   return (
     <div>
-      <Link to="/">Home</Link>
+      <div className="flex justify-around">
+        <Link to="/">Home</Link>
+        <Link to="/menu">Menu</Link>
+      </div>
       {cartCount === 0 ? (
         <p>Cart is empty</p>
       ) : (
@@ -57,6 +64,7 @@ function Cart() {
           ))}
         </div>
       )}
+      <Link to="/reserve">Checkout</Link>
     </div>
   );
 }
