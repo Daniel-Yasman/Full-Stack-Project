@@ -5,18 +5,23 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const userId = JSON.parse(localStorage.getItem("user"))?._id;
 
   const fetchCart = async () => {
     if (!userId) return;
+    setLoading(true);
     try {
       const res = await fetch(`/api/user/${userId}/cart`);
       if (!res.ok) throw new Error("Error fetching cart");
       const data = await res.json();
+
       setCartCount(data.cart.length);
       setCartItems(data.cart);
     } catch {
       setCartCount(0);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +48,7 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider
       value={{
+        loading,
         cartCount,
         cartItems,
         fetchCart,
