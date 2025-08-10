@@ -1,25 +1,19 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import { useAuth } from "./AuthContext";
 const CartContext = createContext();
-
-const [userId, setUserId] = useState(null);
-async function getUserId() {
-  if (userId) return userId;
-  const meRes = await fetch("/api/me", { credentials: "include" });
-  if (!meRes.ok) return null;
-  const me = await meRes.json();
-  setUserId(me._id);
-  return me._id;
-}
 
 export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, getUserId } = useAuth();
 
   const fetchCart = async () => {
-    const uid = await getUserId();
-    if (!uid) return;
+    const uid = getUserId();
+    if (!uid) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`/api/user/${uid}/cart`, {
@@ -38,8 +32,7 @@ export function CartProvider({ children }) {
   };
 
   const updateCartItem = async (foodId, quantity) => {
-    const uid = await getUserId();
-    if (!uid) return;
+    const uid = getUserId();
     await fetch(`/api/user/${uid}/cart`, {
       method: "PATCH",
       headers: {
@@ -52,8 +45,7 @@ export function CartProvider({ children }) {
   };
 
   const removeCartItem = async (foodId) => {
-    const uid = await getUserId();
-    if (!uid) return;
+    const uid = getUserId();
     await fetch(`/api/user/${uid}/cart/${foodId}`, {
       method: "DELETE",
       credentials: "include",
@@ -63,7 +55,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     fetchCart();
-  }, [userId]);
+  }, [user]);
 
   return (
     <CartContext.Provider
