@@ -60,6 +60,7 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider
       value={{
+        user,
         loading,
         cartCount,
         cartItems,
