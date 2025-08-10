@@ -11,22 +11,23 @@ import MyReservations from "./pages/MyReservations";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart.jsx";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <CartProvider>
-      {" "}
-      {/* 🛠 THIS must wrap everything that uses useCart */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/reserve" element={<Reservation />} />
-          <Route path="/my-reservations" element={<MyReservations />} />
-        </Routes>
-      </BrowserRouter>
-    </CartProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/reserve" element={<Reservation />} />
+            <Route path="/my-reservations" element={<MyReservations />} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 );
