@@ -9,7 +9,7 @@ function FoodList() {
 
   useEffect(() => {
     const fetchFoods = async () => {
-      const response = await fetch("/api/food");
+      const response = await fetch("/api/food", { credentials: "include" });
       if (!response.ok) {
         let errorData;
         try {
@@ -32,6 +32,7 @@ function FoodList() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ foodId, quantity }),
     });
     if (!response.ok) {
