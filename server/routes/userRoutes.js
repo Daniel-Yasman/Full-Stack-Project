@@ -1,11 +1,17 @@
 const express = require("express");
+const auth = require("../middleware/auth");
+const owner = require("../middleware/owner");
 const router = express.Router();
+
 const {
   addToCart,
   getCart,
   updateCartItem,
   removeCartItem,
 } = require("../controllers/userController");
+
+router.use("/:userId/cart", auth, owner);
+
 router.post("/:userId/cart", addToCart);
 router.get("/:userId/cart", getCart);
 router.patch("/:userId/cart", updateCartItem);
