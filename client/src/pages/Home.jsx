@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-function logout() {
-  localStorage.removeItem("user");
-  window.location.reload();
-}
+import { useAuth } from "../context/AuthContext";
+
 function Home() {
-  const user = JSON.parse(localStorage.getItem("user")) || null;
   const { cartCount } = useCart();
+  const { user } = useAuth();
+  const { logout } = useAuth();
   return (
     <div>
       <div>
