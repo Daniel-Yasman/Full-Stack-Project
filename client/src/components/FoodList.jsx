@@ -9,7 +9,7 @@ function FoodList() {
 
   useEffect(() => {
     const fetchFoods = async () => {
-      const response = await fetch("/api/food", { credentials: "include" });
+      const response = await fetch("/api/food");
       if (!response.ok) {
         let errorData;
         try {
