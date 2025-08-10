@@ -12,7 +12,9 @@ export function CartProvider({ children }) {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/user/${userId}/cart`);
+      const res = await fetch(`/api/user/${userId}/cart`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Error fetching cart");
       const data = await res.json();
 
@@ -31,13 +33,17 @@ export function CartProvider({ children }) {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ foodId, quantity }),
     });
     await fetchCart();
   };
 
   const removeCartItem = async (foodId) => {
-    await fetch(`/api/user/${userId}/cart/${foodId}`, { method: "DELETE" });
+    await fetch(`/api/user/${userId}/cart/${foodId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     await fetchCart();
   };
 
