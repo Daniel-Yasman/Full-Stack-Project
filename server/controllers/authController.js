@@ -1,6 +1,8 @@
+const COOKIE_NAME = process.env.COOKIE_NAME || "token";
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { sign } = require("../utils/jwt");
+const cookieOptions = require("../utils/cookies");
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneIL = /^05\d{8}$/;
 
@@ -10,7 +12,7 @@ function isValidEmail(s) {
 
 function isValidPassword(s) {
   if (typeof s !== "string" || s.length < 8) return false;
-  return /[a-zA-z]/.test(s) && /[0-9]/.test(s);
+  return /[a-zA-Z]/.test(s) && /[0-9]/.test(s);
 }
 
 function isValidIsraeliPhone(s) {
@@ -80,13 +82,7 @@ const login = async (req, res) => {
 
     const token = sign(user._id);
     res
-      .cookie(process.env.COOKIE_NAME, token, {
-        httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
-        path: "/",
-      })
+      .cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
       .status(200)
       .json({ _id: user._id, name: user.name, email: user.email });
   } catch (err) {
@@ -95,7 +91,13 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: 0 });
+  return res.status(204).end();
+};
+
 module.exports = {
   register,
   login,
+  logout,
 };
