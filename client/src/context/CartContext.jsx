@@ -2,17 +2,27 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
+const [userId, setUserId] = useState(null);
+async function getUserId() {
+  if (userId) return userId;
+  const meRes = await fetch("/api/me", { credentials: "include" });
+  if (!meRes.ok) return null;
+  const me = await meRes.json();
+  setUserId(me._id);
+  return me._id;
+}
+
 export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = JSON.parse(localStorage.getItem("user"))?._id;
 
   const fetchCart = async () => {
-    if (!userId) return;
+    const uid = await getUserId();
+    if (!uid) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/user/${userId}/cart`, {
+      const res = await fetch(`/api/user/${uid}/cart`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Error fetching cart");
@@ -28,7 +38,9 @@ export function CartProvider({ children }) {
   };
 
   const updateCartItem = async (foodId, quantity) => {
-    await fetch(`/api/user/${userId}/cart`, {
+    const uid = await getUserId();
+    if (!uid) return;
+    await fetch(`/api/user/${uid}/cart`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +52,9 @@ export function CartProvider({ children }) {
   };
 
   const removeCartItem = async (foodId) => {
-    await fetch(`/api/user/${userId}/cart/${foodId}`, {
+    const uid = await getUserId();
+    if (!uid) return;
+    await fetch(`/api/user/${uid}/cart/${foodId}`, {
       method: "DELETE",
       credentials: "include",
     });
