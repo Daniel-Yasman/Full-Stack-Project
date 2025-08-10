@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 function FoodList() {
   const [foods, setFoods] = useState([]);
   const [message, setMessage] = useState("");
   const { fetchCart } = useCart();
-  const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
+  const { getUserId } = useAuth();
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -27,7 +28,9 @@ function FoodList() {
   }, []);
 
   const handleAddToCart = async (foodId, quantity) => {
-    const response = await fetch(`/api/user/${userId}/cart`, {
+    const uid = getUserId();
+    if (!uid) return;
+    const response = await fetch(`/api/user/${uid}/cart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +49,7 @@ function FoodList() {
       return;
     } else {
       setMessage("Added to cart");
-      await fetchCart(); // comes from context now
+      await fetchCart();
     }
   };
 
