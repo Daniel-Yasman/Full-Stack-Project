@@ -6,9 +6,14 @@ function Login() {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    const r = await login(email, password);
+    if (!r.ok) {
+      // TODO: show toast as an error eventually
+      return;
+    }
     navigate("/");
   };
 
