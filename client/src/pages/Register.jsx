@@ -1,43 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState(null);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        phone,
-      }),
-    });
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: "Unknown error" };
-      }
-      setMessage(`${errorData.message}.`);
+    const r = await register(name, email, password, phone);
+    if (!r.ok) {
+      // TODO: show toast based on res.error (e.g., 'email_exists', 'invalid_input')
       return;
     }
-    setMessage("Success");
-    setName("");
-    setEmail("");
-    setPassword("");
-    setPhone("");
     navigate("/login");
   };
 
@@ -83,7 +61,6 @@ function Register() {
           Have an account? <Link to="/login">Login</Link> here
         </p>
       </div>
-      {message && <p>{message}</p>}
     </div>
   );
 }
