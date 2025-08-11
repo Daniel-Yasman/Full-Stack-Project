@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
     refreshMe();
   }, []);
 
-  const getUserId = () => user?._id || null;
+  const getUserId = () => user?.id ?? null;
 
   return (
     <AuthContext.Provider
