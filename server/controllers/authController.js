@@ -53,7 +53,7 @@ const register = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ _id: user._id, name: user.name, email: user.email });
+      .json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "register_failed" });
@@ -84,7 +84,7 @@ const login = async (req, res) => {
     res
       .cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
       .status(200)
-      .json({ _id: user._id, name: user.name, email: user.email });
+      .json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "login_failed" });
