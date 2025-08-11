@@ -11,6 +11,8 @@ export function CartProvider({ children }) {
   const fetchCart = async () => {
     const uid = getUserId();
     if (!uid) {
+      setCartCount(0);
+      setCartItems([]);
       setLoading(false);
       return;
     }
@@ -26,6 +28,7 @@ export function CartProvider({ children }) {
       setCartItems(data.cart);
     } catch {
       setCartCount(0);
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -33,6 +36,7 @@ export function CartProvider({ children }) {
 
   const updateCartItem = async (foodId, quantity) => {
     const uid = getUserId();
+    if (!uid) return;
     await fetch(`/api/user/${uid}/cart`, {
       method: "PATCH",
       headers: {
@@ -46,6 +50,7 @@ export function CartProvider({ children }) {
 
   const removeCartItem = async (foodId) => {
     const uid = getUserId();
+    if (!uid) return;
     await fetch(`/api/user/${uid}/cart/${foodId}`, {
       method: "DELETE",
       credentials: "include",
