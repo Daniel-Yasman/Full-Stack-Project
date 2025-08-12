@@ -56,7 +56,7 @@ const register = async (req, res) => {
       .json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
-    return res.status(500).json({ error: "register_failed" });
+    return res.status(500).json({ error: "internal_server_error" });
   }
 };
 
@@ -87,12 +87,20 @@ const login = async (req, res) => {
       .json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
-    return res.status(500).json({ error: "login_failed" });
+    return res.status(500).json({ error: "internal_server_error" });
   }
 };
 
-const logout = async (req, res) => {
-  res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: 0 });
+const logout = (req, res) => {
+  try {
+    res.clearCookie(COOKIE_NAME, {
+      ...cookieOptions,
+      maxAge: 0,
+    });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "internal_server_error" });
+  }
   return res.status(204).end();
 };
 
