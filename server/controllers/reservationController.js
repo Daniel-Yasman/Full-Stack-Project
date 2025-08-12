@@ -1,7 +1,7 @@
 const Reservation = require("../models/Reservation");
 const Food = require("../models/Food");
-const mongoose = require("mongoose");
 const { DateTime } = require("luxon");
+const { isValidObjectId } = require("mongoose");
 
 const createReservation = async (req, res) => {
   const { userId, cart, time, creditCard } = req.body;
@@ -12,7 +12,10 @@ const createReservation = async (req, res) => {
     !time ||
     !creditCard
   )
-    return res.status(400).json({ message: "Missing fields" });
+    return res.status(400).json({
+      error: "missing_fields",
+      details: ["userId", "cart", "time", "creditCard"],
+    });
 
   const ids = cart.map((item) => item.foodId);
   const count = await Food.countDocuments({ _id: { $in: ids } });
@@ -24,51 +27,52 @@ const createReservation = async (req, res) => {
   }).toJSDate();
 
   try {
-    const newReservation = new Reservation({
+    const newReservation = await Reservation.create({
       userId,
       cart,
       time: israelTime,
       creditCard,
     });
-    await newReservation.save();
-    return res.status(200).json({
-      message: "Reservation created successfully",
-      reservation: newReservation,
+    const { _id } = newReservation;
+    return res.status(201).json({
+      reservation: { id: _id, userId, cart, time: israelTime },
     });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({
-      message: "An error occurred while trying to create a reservation",
-    });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "internal_server_error" });
   }
 };
 
 const listReservations = async (req, res) => {
   const { userId } = req.query;
+  if (!userId)
+    return res
+      .status(400)
+      .json({ error: "missing_fields", details: ["userId"] });
+
   try {
-    const reservations = await Reservation.find({ userId }).populate(
-      "cart.foodId",
-      "name price image"
-    );
+    const reservations = await Reservation.find({ userId })
+      .select("-creditCard -__v")
+      .populate("cart.foodId", "name price image")
+      .lean();
 
-    if (reservations.length === 0)
-      return res.status(404).json({ message: "No reservations found" });
-
-    return res.status(200).json({ message: "Success", reservations });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({
-      message: "An error occurred while trying to get reservations",
-    });
+    return res.status(200).json({ reservations });
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "internal_server_error" });
   }
 };
 
 const deleteReservation = async (req, res) => {
   const { id } = req.params;
+  if (!id)
+    return res.status(400).json({ error: "missing_fields", details: ["id"] });
+
+  if (!isValidObjectId(id)) return res.status(404).json({ error: "not_found" });
+
   try {
     const reservation = await Reservation.findById(id);
-    if (!reservation)
-      return res.status(404).json({ message: "No reservation found" });
+    if (!reservation) return res.status(404).json({ error: "not_found" });
 
     const now = DateTime.now().setZone("Asia/Jerusalem");
     const compare = DateTime.fromJSDate(reservation.time, {
@@ -77,18 +81,14 @@ const deleteReservation = async (req, res) => {
     const diff = compare.diff(now, "hours").hours;
 
     if (diff < 24)
-      return res.status(401).json({
-        message: "Cancellation window passed, please contact support",
-      });
+      return res.status(403).json({ error: "cancellation_window" });
 
     await reservation.deleteOne();
 
-    return res.status(200).json({ message: "Success" });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({
-      message: "An error occurred while trying to get reservations",
-    });
+    return res.status(204).end();
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.error(err);
+    return res.status(500).json({ error: "internal_server_error" });
   }
 };
 
