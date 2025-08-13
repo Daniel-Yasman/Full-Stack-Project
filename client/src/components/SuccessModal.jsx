@@ -17,9 +17,9 @@ function SuccessModal({ name, food, time }) {
       <div>
         {Array.isArray(food) &&
           food.map((item) => (
-            <div className="py-1 flex gap-1 items-center" key={item._id}>
-              <img className="w-10 h-10 rounded-md" src={item.foodId.image} />
-              <div>{item.foodId.name}</div>
+            <div className="py-1 flex gap-1 items-center" key={item.id}>
+              <img className="w-10 h-10 rounded-md" src={item.image} />
+              <div>{item.name}</div>
               <div>x{item.quantity}</div>
             </div>
           ))}
