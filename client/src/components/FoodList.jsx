@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,6 +8,7 @@ function FoodList() {
   const [message, setMessage] = useState("");
   const { fetchCart } = useCart();
   const { getUserId } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -29,7 +31,7 @@ function FoodList() {
 
   const handleAddToCart = async (foodId, quantity) => {
     const uid = getUserId();
-    if (!uid) return;
+    if (!uid) navigate("/login");
     const response = await fetch(`/api/user/${uid}/cart`, {
       method: "POST",
       headers: {
