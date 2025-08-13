@@ -25,13 +25,30 @@ export function CartProvider({ children }) {
       const data = await res.json();
 
       setCartCount(data.cart.length);
-      setCartItems(data.cart);
+      setCartItems(
+        data.cart.map((item) => {
+          const f = item.foodId;
+          return {
+            id: f._id || f,
+            name: f.name,
+            price: f.price,
+            image: f.image,
+            quantity: item.quantity,
+          };
+        })
+      );
     } catch {
       setCartCount(0);
       setCartItems([]);
     } finally {
       setLoading(false);
     }
+  };
+  const getCheckoutPayload = () => {
+    return cartItems.map((item) => ({
+      foodId: item.id,
+      quantity: item.quantity,
+    }));
   };
 
   const updateCartItem = async (foodId, quantity) => {
@@ -73,6 +90,7 @@ export function CartProvider({ children }) {
         setCartCount,
         updateCartItem,
         removeCartItem,
+        getCheckoutPayload,
       }}
     >
       {children}
