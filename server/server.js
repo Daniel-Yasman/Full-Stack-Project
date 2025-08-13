@@ -1,4 +1,8 @@
 require("dotenv").config();
+const fs = require("fs");
+const https = require("https");
+const key = fs.readFileSync("./localhost-key.pem");
+const cert = fs.readFileSync("./localhost.pem");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -27,6 +31,7 @@ app.use("/api/food", foodRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/user/", userRoutes);
 app.use("/api", meRoutes);
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+
+https.createServer({ key, cert }, app).listen(PORT, () => {
+  console.log(`HTTPS API on https://localhost:${PORT}`);
 });
