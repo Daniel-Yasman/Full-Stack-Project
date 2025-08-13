@@ -1,49 +1,45 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { DateTime } from "luxon";
+import { useAuth } from "../context/AuthContext";
 function MyReservations() {
-  const userId = JSON.parse(localStorage.getItem("user"))?._id || null;
-  const name = JSON.parse(localStorage.getItem("user"))?.name || null;
+  const { getUserId, user } = useAuth();
   const [reservations, setReservations] = useState([]);
   const [message, setMessage] = useState("");
   useEffect(() => {
     const fetchReservations = async () => {
-      const response = await fetch(`/api/reservations?userId=${userId}`);
+      const uid = getUserId();
+      if (!uid) return;
+      const response = await fetch(`/api/reservations?userId=${uid}`, {
+        credentials: "include",
+      });
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = response.json();
-        } catch {
-          errorData = { message: "Unknown error" };
-        }
-        setMessage(errorData.message);
+        const payload = await response.json().catch(() => {});
+        setMessage(payload.error || "unknown_error");
+        return;
       }
       const data = await response.json();
       setReservations(data.reservations);
     };
     fetchReservations();
-  }, []);
+  }, [user]);
 
   const handleDelete = async (id) => {
     const response = await fetch(`/api/reservations/${id}`, {
       method: "DELETE",
+      credentials: "include",
     });
     if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: "Unknown error" };
-      }
-      setMessage(errorData.message);
+      const payload = await response.json().catch(() => {});
+      setMessage(payload.error || "unknown_error");
       return;
     } else setMessage("Success");
   };
-  // Turn {message && <p>{message}</p>} into a component popup eventually
+  // Turn {message && <p>{message}</p>} into a toast eventually
   return (
     <div>
       {message && <p>{message}</p>}
-      {userId ? (
+      {user ? (
         <div>
           <ul>
             <li>
@@ -53,7 +49,7 @@ function MyReservations() {
               <Link to="/menu">Make a new reservation</Link>
             </li>
           </ul>
-          <h1>{name && <span>{name}'s</span>} History</h1>
+          <h1>{user?.name && <span>{user?.name}'s</span>} History</h1>
           <div>
             {reservations.length === 0 ? (
               <p>No reservations yet</p>
