@@ -1,4 +1,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import {
+  register as registerApi,
+  login as loginApi,
+  logout as logoutApi,
+  refreshMe as refreshMeApi,
+} from "../../lib/auth";
 
 const AuthContext = createContext(null);
 
@@ -7,80 +13,44 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
 
   const register = async (name, email, password, phone) => {
-    const r = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        phone,
-      }),
-    });
-    if (!r.ok) {
-      let payload = null;
-      try {
-        payload = await r.json();
-      } catch {}
+    try {
+      await registerApi(name, email, password, phone);
+      return { ok: true };
+    } catch (e) {
       return {
         ok: false,
-        error: payload?.error || "unknown_error",
-        status: r.status,
+        error: e.body?.error || "unknown_error",
+        status: e.status ?? 500,
       };
     }
-    return { ok: true };
   };
 
   const login = async (email, password) => {
-    const r = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-    if (!r.ok) {
-      let payload = null;
-      try {
-        payload = await r.json();
-      } catch {}
+    try {
+      const data = await loginApi(email, password);
+      setUser(data);
+      return { ok: true, data };
+    } catch (e) {
       return {
         ok: false,
-        error: payload?.error || "invalid_credentials",
-        status: r.status,
+        error: e.body?.error || "unknown_error",
+        status: e.status ?? 500,
       };
     }
-    const data = await r.json();
-    setUser(data);
-    return { ok: true, data };
   };
 
   async function logout() {
     try {
-      const r = await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!r.ok) return;
+      await logoutApi();
     } finally {
       setUser(null);
     }
   }
+
   async function refreshMe() {
     setAuthLoading(true);
     try {
-      const r = await fetch("/api/me", { credentials: "include" });
-      if (!r.ok) {
-        setUser(null);
-        return;
-      }
-      const data = await r.json();
+      const data = await refreshMeApi(() => setUser(null));
       setUser(data);
     } catch {
       setUser(null);
