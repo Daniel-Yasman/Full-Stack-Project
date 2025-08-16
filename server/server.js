@@ -29,7 +29,7 @@ const meRoutes = require("./routes/me");
 app.use("/api", authRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/reservations", reservationRoutes);
-app.use("/api/user/", userRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api", meRoutes);
 
 https.createServer({ key, cert }, app).listen(PORT, () => {
