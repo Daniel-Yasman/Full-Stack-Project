@@ -4,7 +4,7 @@ import {
   login as loginApi,
   logout as logoutApi,
   refreshMe as refreshMeApi,
-} from "../../lib/auth";
+} from "../lib/auth";
 
 const AuthContext = createContext(null);
 
@@ -15,10 +15,9 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password, phone) => {
     try {
       await registerApi(name, email, password, phone);
-      return { ok: true };
+      return;
     } catch (e) {
       return {
-        ok: false,
         error: e.body?.error || "unknown_error",
         status: e.status ?? 500,
       };
@@ -29,10 +28,9 @@ export function AuthProvider({ children }) {
     try {
       const data = await loginApi(email, password);
       setUser(data);
-      return { ok: true, data };
+      return;
     } catch (e) {
       return {
-        ok: false,
         error: e.body?.error || "unknown_error",
         status: e.status ?? 500,
       };
