@@ -18,9 +18,9 @@ function Cart() {
         <div>
           {cartCount === 1 ? <p>{cartCount} Item</p> : <p>{cartCount} Items</p>}
           {cartItems.map((item) => (
-            <div key={item.foodId._id}>
-              <p>{item.foodId.name}</p>
-              <p>{item.foodId.price}$</p>
+            <div key={item.id}>
+              <p>{item.name}</p>
+              <p>{item.price}$</p>
               <div>x{item.quantity}</div>
               {item.quantity >= 10 ? (
                 <button
@@ -32,9 +32,7 @@ function Cart() {
                 </button>
               ) : (
                 <button
-                  onClick={() =>
-                    updateCartItem(item.foodId._id, item.quantity + 1)
-                  }
+                  onClick={() => updateCartItem(item.id, item.quantity + 1)}
                 >
                   +
                 </button>
@@ -49,17 +47,15 @@ function Cart() {
                 </button>
               ) : (
                 <button
-                  onClick={() =>
-                    updateCartItem(item.foodId._id, item.quantity - 1)
-                  }
+                  onClick={() => updateCartItem(item.id, item.quantity - 1)}
                 >
                   -
                 </button>
               )}
-              <button onClick={() => removeCartItem(item.foodId._id)}>
+              <button onClick={() => removeCartItem(item.id)}>
                 Remove item
               </button>
-              <img className="w-25 h-25 rounded-md" src={item.foodId.image} />
+              <img className="w-25 h-25 rounded-md" src={item.image} />
             </div>
           ))}
         </div>
