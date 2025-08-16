@@ -4,7 +4,7 @@ import {
   fetchCart as fetchCartApi,
   updateCartItem as updateCartItemApi,
   removeCartItem as removeCartItemApi,
-} from "../../lib/cart";
+} from "../lib/cart";
 
 const CartContext = createContext();
 
@@ -12,7 +12,7 @@ export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user, getUserId } = useAuth();
+  const { user } = useAuth();
 
   const mapCart = (data) =>
     data.cart.map(({ foodId: f, quantity }) => ({
@@ -23,31 +23,12 @@ export function CartProvider({ children }) {
       quantity,
     }));
 
-  const noUid = (uid) => {
-    if (!uid) {
-      resetCartState();
-      setLoading(false);
-      return true;
-    }
-    return false;
-  };
-
   const fetchCart = async () => {
-    const resetCartState = () => {
-      setCartCount(0);
-      setCartItems([]);
-    };
-
-    const uid = getUserId();
-    if (noUid(uid)) return;
-
     setLoading(true);
     try {
-      const data = await fetchCartApi(uid, () => resetCartState());
+      const data = await fetchCartApi();
       setCartCount(data.cart.length);
       setCartItems(mapCart(data));
-    } catch {
-      resetCartState();
     } finally {
       setLoading(false);
     }
@@ -61,16 +42,12 @@ export function CartProvider({ children }) {
   };
 
   const updateCartItem = async (foodId, quantity) => {
-    const uid = getUserId();
-    if (!uid) return;
-    await updateCartItemApi(uid, foodId, quantity);
+    await updateCartItemApi(foodId, quantity);
     await fetchCart();
   };
 
   const removeCartItem = async (foodId) => {
-    const uid = getUserId();
-    if (!uid) return;
-    await removeCartItemApi(uid, foodId);
+    await removeCartItemApi(foodId);
     await fetchCart();
   };
 
