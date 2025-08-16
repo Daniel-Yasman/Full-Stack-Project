@@ -1,16 +1,16 @@
 import { api } from "./api";
 
-export const fetchCart = (uid, on401) => {
-  return api(`/user/${uid}/cart`, { on401 });
+export const fetchCart = (on401) => {
+  return api(`/user/cart`, { on401 });
 };
 
-export const updateCartItem = (uid, foodId, quantity) => {
-  return api(`/user/${uid}/cart`, {
+export const updateCartItem = (foodId, quantity) => {
+  return api(`/user/cart`, {
     method: "PATCH",
     body: { foodId, quantity },
   });
 };
 
-export const removeCartItem = (uid, foodId) => {
-  return api(`/user/${uid}/cart/${foodId}`, { method: "DELETE" });
+export const removeCartItem = (foodId) => {
+  return api(`/user/cart/${foodId}`, { method: "DELETE" });
 };
