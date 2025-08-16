@@ -10,10 +10,10 @@ const {
   removeCartItem,
 } = require("../controllers/userController");
 
-router.use("/:userId/cart", auth, owner);
+router.use("/cart", auth, owner);
 
-router.post("/:userId/cart", addToCart);
-router.get("/:userId/cart", getCart);
-router.patch("/:userId/cart", updateCartItem);
-router.delete("/:userId/cart/:foodId", removeCartItem);
+router.post("/cart", addToCart);
+router.get("/cart", getCart);
+router.patch("/cart", updateCartItem);
+router.delete("/cart/:foodId", removeCartItem);
 module.exports = router;
