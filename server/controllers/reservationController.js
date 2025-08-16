@@ -4,17 +4,11 @@ const { DateTime } = require("luxon");
 const { isValidObjectId } = require("mongoose");
 
 const createReservation = async (req, res) => {
-  const { userId, cart, time, creditCard } = req.body;
-  if (
-    !userId ||
-    !Array.isArray(cart) ||
-    cart.length === 0 ||
-    !time ||
-    !creditCard
-  )
+  const { cart, time, creditCard } = req.body;
+  if (!Array.isArray(cart) || cart.length === 0 || !time || !creditCard)
     return res.status(400).json({
       error: "missing_fields",
-      details: ["userId", "cart", "time", "creditCard"],
+      details: ["cart", "time", "creditCard"],
     });
 
   const ids = cart.map((item) => item.foodId);
@@ -28,14 +22,14 @@ const createReservation = async (req, res) => {
 
   try {
     const newReservation = await Reservation.create({
-      userId,
+      userId: req.user.id,
       cart,
       time: israelTime,
       creditCard,
     });
     const { _id } = newReservation;
     return res.status(201).json({
-      reservation: { id: _id, userId, cart, time: israelTime },
+      reservation: { id: _id, userId: req.user.id, cart, time: israelTime },
     });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
@@ -44,19 +38,12 @@ const createReservation = async (req, res) => {
 };
 
 const listReservations = async (req, res) => {
-  const { userId } = req.query;
-  if (!userId)
-    return res
-      .status(400)
-      .json({ error: "missing_fields", details: ["userId"] });
-
   try {
-    const reservations = await Reservation.find({ userId })
+    const reservations = await Reservation.find({ userId: req.user.id })
       .select("-creditCard -__v")
       .populate("cart.foodId", "name price image")
       .lean();
-
-    return res.status(200).json({ reservations });
+    return res.json({ reservations });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "internal_server_error" });
@@ -73,6 +60,9 @@ const deleteReservation = async (req, res) => {
   try {
     const reservation = await Reservation.findById(id);
     if (!reservation) return res.status(404).json({ error: "not_found" });
+
+    if (String(reservation.userId) !== req.user.id)
+      return res.status(403).json({ error: "forbidden" });
 
     const now = DateTime.now().setZone("Asia/Jerusalem");
     const compare = DateTime.fromJSDate(reservation.time, {
