@@ -27,7 +27,7 @@ export async function api(
     data = await r.json();
   } catch {}
 
-  if (r.status === 401 && typeof on401 === "function") on401();
+  if (r.status === 401 && typeof on401 === "function") on401(r);
   if (!r.ok) throw new HttpError(r.status, data);
 
   return data;
