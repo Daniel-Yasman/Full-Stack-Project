@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import {
-  fetchCart as fetchCartApi,
-  updateCartItem as updateCartItemApi,
-  removeCartItem as removeCartItemApi,
+  fetchCartApi,
+  updateCartItemApi,
+  removeCartItemApi,
 } from "../lib/cart";
 
 const CartContext = createContext();
@@ -23,14 +23,14 @@ export function CartProvider({ children }) {
       quantity,
     }));
 
-  const fetchCart = async () => {
-    setLoading(true);
+  const fetchCart = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const data = await fetchCartApi();
       setCartCount(data.cart.length);
       setCartItems(mapCart(data));
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -43,12 +43,12 @@ export function CartProvider({ children }) {
 
   const updateCartItem = async (foodId, quantity) => {
     await updateCartItemApi(foodId, quantity);
-    await fetchCart();
+    await fetchCart({ silent: true });
   };
 
   const removeCartItem = async (foodId) => {
     await removeCartItemApi(foodId);
-    await fetchCart();
+    await fetchCart({ silent: true });
   };
 
   useEffect(() => {
