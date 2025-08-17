@@ -9,11 +9,8 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const r = await login(email, password);
-    if (!r.ok) {
-      // TODO: show toast as an error eventually
-      return;
-    }
+    await login(email, password);
+
     navigate("/");
   };
 
