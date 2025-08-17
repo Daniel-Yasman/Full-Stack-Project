@@ -1,10 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  register as registerApi,
-  login as loginApi,
-  logout as logoutApi,
-  refreshMe as refreshMeApi,
-} from "../lib/auth";
+import { registerApi, loginApi, logoutApi, refreshMeApi } from "../lib/auth";
 
 const AuthContext = createContext(null);
 
