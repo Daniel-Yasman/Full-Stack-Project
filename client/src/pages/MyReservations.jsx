@@ -1,40 +1,43 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import { useAuth } from "../context/AuthContext";
+import { listReservationsApi, deleteReservationApi } from "../lib/reservations";
+
 function MyReservations() {
-  const { getUserId, user } = useAuth();
+  const { user, logout } = useAuth();
   const [reservations, setReservations] = useState([]);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  function logoutAndRedirect() {
+    logout();
+    navigate("/login");
+  }
+
   useEffect(() => {
+    if (!user) return;
+
     const fetchReservations = async () => {
-      const uid = getUserId();
-      if (!uid) return;
-      const response = await fetch(`/api/reservations?userId=${uid}`, {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => {});
-        setMessage(payload.error || "unknown_error");
-        return;
+      try {
+        const data = await listReservationsApi(logoutAndRedirect);
+        setReservations(data.reservations);
+      } catch (e) {
+        setMessage(e.body?.error || "unknown_error");
       }
-      const data = await response.json();
-      setReservations(data.reservations);
     };
     fetchReservations();
   }, [user]);
 
   const handleDelete = async (id) => {
-    const response = await fetch(`/api/reservations/${id}`, {
-      method: "DELETE",
-      credentials: "include",
+    let had401 = false;
+    await deleteReservationApi(id, (r) => {
+      setMessage(r.body?.error);
+      had401 = true;
     });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => {});
-      setMessage(payload.error || "unknown_error");
-      return;
-    } else setMessage("Success");
+    if (!had401) setMessage("Success");
   };
+
   // Turn {message && <p>{message}</p>} into a toast eventually
   return (
     <div>
