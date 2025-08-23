@@ -3,11 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import { useAuth } from "../context/AuthContext";
 import { listReservationsApi, deleteReservationApi } from "../lib/reservations";
-
 function MyReservations() {
   const { user, logout } = useAuth();
   const [reservations, setReservations] = useState([]);
-
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -87,6 +85,7 @@ function MyReservations() {
                         />
                       </div>
                     ))}
+                    <p>Total: {reservation.total.toFixed(2)}$</p>
                     <button
                       className={expired ? "cursor-not-allowed opacity-75" : ""}
                       onClick={() => {
