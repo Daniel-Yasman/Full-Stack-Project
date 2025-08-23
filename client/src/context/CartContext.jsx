@@ -10,6 +10,7 @@ const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
+  const [cartTotal, setCartTotal] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -29,6 +30,7 @@ export function CartProvider({ children }) {
       const data = await fetchCartApi();
       setCartCount(data.cart.length);
       setCartItems(mapCart(data));
+      setCartTotal(data.total);
     } finally {
       if (!silent) setLoading(false);
     }
@@ -61,6 +63,7 @@ export function CartProvider({ children }) {
         user,
         loading,
         cartCount,
+        cartTotal,
         cartItems,
         fetchCart,
         setCartCount,
