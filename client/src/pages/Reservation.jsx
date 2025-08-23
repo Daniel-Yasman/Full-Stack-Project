@@ -11,10 +11,6 @@ function Reservation() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const datetime = `${date}T${time}`;
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardHolder, setCardHolder] = useState("");
-  const [expirationDate, setExpirationDate] = useState("");
-  const [cvv, setCvv] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -34,12 +30,6 @@ function Reservation() {
         // neither cartItems or fetchCart work. both return 400.
         cart: getCheckoutPayload(),
         time: datetime,
-        creditCard: {
-          cardNumber,
-          cardHolder,
-          expirationDate,
-          cvv,
-        },
       }),
     });
     if (!response.ok) {
@@ -102,29 +92,14 @@ function Reservation() {
                 <fieldset>
                   <legend>Payment Info</legend>
                   <label>Card Number:</label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                  />
+                  {/* Add logic here eventually */}
+                  <input type="text" />
                   <label>Card Holder:</label>
-                  <input
-                    type="text"
-                    value={cardHolder}
-                    onChange={(e) => setCardHolder(e.target.value)}
-                  />
+                  <input type="text" />
                   <label>Expiry:</label>
-                  <input
-                    type="text"
-                    value={expirationDate}
-                    onChange={(e) => setExpirationDate(e.target.value)}
-                  />
+                  <input type="text" />
                   <label>CVV</label>
-                  <input
-                    type="text"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
-                  />
+                  <input type="text" />
                 </fieldset>
                 <button type="submit">Submit</button>
               </form>
