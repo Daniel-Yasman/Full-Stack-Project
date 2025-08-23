@@ -6,7 +6,8 @@ import SuccessModal from "../components/SuccessModal";
 
 function Reservation() {
   const { getUserId, user } = useAuth();
-  const { fetchCart, cartItems, cartCount, getCheckoutPayload } = useCart();
+  const { fetchCart, cartItems, cartTotal, cartCount, getCheckoutPayload } =
+    useCart();
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const datetime = `${date}T${time}`;
@@ -62,11 +63,11 @@ function Reservation() {
               {cartCount === 0 ? (
                 <p>Cart is empty.</p>
               ) : (
-                <div>
+                <div className="border-1">
                   <header>Cart:</header>
                   <div>
                     {cartItems.map((item) => (
-                      <div className="border-1" key={item.id}>
+                      <div key={item.id}>
                         <div className="flex flex-col items-center">
                           <p>{item.name}</p>
                           <p>{item.price}$</p>
@@ -79,6 +80,7 @@ function Reservation() {
                       </div>
                     ))}
                   </div>
+                  <p>Total: {cartTotal.toFixed(2)}$</p>
                 </div>
               )}
               <form onSubmit={handleSubmit}>
