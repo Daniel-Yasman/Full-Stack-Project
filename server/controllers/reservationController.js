@@ -4,32 +4,51 @@ const { DateTime } = require("luxon");
 const { isValidObjectId } = require("mongoose");
 
 const createReservation = async (req, res) => {
-  const { cart, time, creditCard } = req.body;
-  if (!Array.isArray(cart) || cart.length === 0 || !time || !creditCard)
+  const { cart, time } = req.body;
+  if (!Array.isArray(cart) || cart.length === 0 || !time)
     return res.status(400).json({
       error: "missing_fields",
-      details: ["cart", "time", "creditCard"],
+      details: ["cart", "time"],
     });
 
   const ids = cart.map((item) => item.foodId);
-  const count = await Food.countDocuments({ _id: { $in: ids } });
-  if (count !== ids.length)
+  const foods = await Food.find({ _id: { $in: ids } })
+    .select("price")
+    .lean();
+  if (foods.length !== ids.length)
     return res.status(400).json({ error: "invalid_foodId" });
+
+  const priceMap = new Map(foods.map((f) => [String(f._id), f.price]));
+  let total = 0;
+  for (const i of cart) {
+    const p = priceMap.get(String(i.foodId));
+    if (typeof p !== "number")
+      return res.status(400).json({ error: "invalid_foodId" });
+    total += i.quantity * p;
+  }
 
   const israelTime = DateTime.fromISO(time, {
     zone: "Asia/Jerusalem",
   }).toJSDate();
+  if (isNaN(israelTime.getTime()))
+    return res.status(400).json({ error: "invalid_time" });
 
   try {
     const newReservation = await Reservation.create({
       userId: req.user.id,
       cart,
       time: israelTime,
-      creditCard,
+      total,
     });
     const { _id } = newReservation;
     return res.status(201).json({
-      reservation: { id: _id, userId: req.user.id, cart, time: israelTime },
+      reservation: {
+        id: _id,
+        userId: req.user.id,
+        cart,
+        time: israelTime,
+        total,
+      },
     });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
@@ -40,7 +59,7 @@ const createReservation = async (req, res) => {
 const listReservations = async (req, res) => {
   try {
     const reservations = await Reservation.find({ userId: req.user.id })
-      .select("-creditCard -__v")
+      .select("-__v")
       .populate("cart.foodId", "name price image")
       .lean();
     return res.json({ reservations });
