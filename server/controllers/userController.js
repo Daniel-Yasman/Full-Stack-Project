@@ -45,7 +45,6 @@ async function addToCart(req, res) {
     return res.status(500).json({ error: "internal_server_error" });
   }
 }
-
 async function getCart(req, res) {
   const userId = req.user.id;
   try {
@@ -54,7 +53,10 @@ async function getCart(req, res) {
       .populate("cart.foodId", "name price image")
       .lean();
     if (!user) return res.status(404).json({ error: "not_found" });
-    return res.status(200).json({ cart: user.cart });
+    const total = (user.cart || [])
+      .filter((i) => i.foodId && typeof i.foodId.price == "number")
+      .reduce((sum, i) => sum + i.quantity * i.foodId.price, 0);
+    return res.status(200).json({ cart: user.cart, total });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "internal_server_error" });
@@ -119,6 +121,7 @@ async function removeCartItem(req, res) {
     return res.status(500).json({ error: "internal_server_error" });
   }
 }
+
 module.exports = {
   addToCart,
   getCart,
