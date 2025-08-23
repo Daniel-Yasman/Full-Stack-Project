@@ -7,6 +7,7 @@ import { listReservationsApi, deleteReservationApi } from "../lib/reservations";
 function MyReservations() {
   const { user, logout } = useAuth();
   const [reservations, setReservations] = useState([]);
+
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -57,34 +58,48 @@ function MyReservations() {
             {reservations.length === 0 ? (
               <p>No reservations yet</p>
             ) : (
-              reservations.map((reservation) => (
-                <div className="border-1 flex flex-col" key={reservation._id}>
-                  <div>
-                    At:{" "}
-                    {DateTime.fromISO(reservation.time)
-                      .setZone("Asia/Jerusalem")
-                      .toFormat("MMMM d, yyyy - HH:mm")}
-                  </div>
-                  {reservation.cart.map((cart) => (
-                    <div
-                      className="flex flex-col gap-1 items-center"
-                      key={cart._id}
-                    >
-                      <div className="flex gap-1">
-                        <div>{cart.foodId.name}</div>
-                        <div>x{cart.quantity}</div>
-                      </div>
-                      <img
-                        className="w-25 h-25 rounded-md"
-                        src={cart.foodId.image}
-                      />
+              reservations.map((reservation) => {
+                const reservationTime = DateTime.fromISO(
+                  reservation.time
+                ).setZone("Asia/Jerusalem");
+                const now = DateTime.now().setZone("Asia/Jerusalem");
+                const expired = now > reservationTime;
+                return (
+                  <div className="border-1 flex flex-col" key={reservation._id}>
+                    <div>
+                      At:{" "}
+                      {DateTime.fromISO(reservation.time)
+                        .setZone("Asia/Jerusalem")
+                        .toFormat("MMMM d, yyyy - HH:mm")}
                     </div>
-                  ))}
-                  <button onClick={() => handleDelete(reservation._id)}>
-                    Delete reservation
-                  </button>
-                </div>
-              ))
+                    {reservation.cart.map((cart) => (
+                      <div
+                        className="flex flex-col gap-1 items-center"
+                        key={cart._id}
+                      >
+                        <div className="flex gap-1">
+                          <div>{cart.foodId.name}</div>
+                          <div>x{cart.quantity}</div>
+                        </div>
+                        <img
+                          className="w-25 h-25 rounded-md"
+                          src={cart.foodId.image}
+                        />
+                      </div>
+                    ))}
+                    <button
+                      className={expired ? "cursor-not-allowed opacity-75" : ""}
+                      onClick={() => {
+                        if (!expired) {
+                          handleDelete(reservation._id);
+                        }
+                      }}
+                    >
+                      Delete reservation
+                    </button>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
