@@ -5,18 +5,13 @@ const reservationSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     foodId: { type: mongoose.Schema.Types.ObjectId, ref: "Food" },
     time: Date,
-    creditCard: {
-      cardNumber: String,
-      cardHolder: String,
-      expirationDate: String,
-      cvv: String,
-    },
     cart: [
       {
         foodId: { type: mongoose.Schema.Types.ObjectId, ref: "Food" },
         quantity: Number,
       },
     ],
+    total: Number,
   },
   { timestamps: true }
 );
