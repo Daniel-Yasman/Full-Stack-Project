@@ -3,8 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import { SyncLoader } from "react-spinners";
 function Cart() {
-  const { loading, cartItems, cartCount, updateCartItem, removeCartItem } =
-    useCart();
+  const {
+    loading,
+    cartItems,
+    cartTotal,
+    cartCount,
+    updateCartItem,
+    removeCartItem,
+  } = useCart();
   const { user } = useAuth();
   if (loading) return <SyncLoader color="#000000" />;
 
@@ -71,6 +77,7 @@ function Cart() {
               ))}
             </div>
           )}
+          <p>{cartTotal.toFixed(2)}$</p>
           {cartCount !== 0 ? <Link to="/reserve">Checkout</Link> : ""}
         </div>
       ) : (
