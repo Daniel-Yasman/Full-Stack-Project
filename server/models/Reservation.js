@@ -11,6 +11,7 @@ const reservationSchema = new mongoose.Schema(
         quantity: Number,
       },
     ],
+    slotKey: String,
     total: Number,
   },
   { timestamps: true }
