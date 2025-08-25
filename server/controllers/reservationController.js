@@ -1,7 +1,9 @@
 const Reservation = require("../models/Reservation");
 const Food = require("../models/Food");
+const Slot = require("../models/Slot");
 const { DateTime } = require("luxon");
 const { isValidObjectId } = require("mongoose");
+const TABLE_LIMIT = 2;
 
 const createReservation = async (req, res) => {
   const { cart, time } = req.body;
@@ -27,17 +29,47 @@ const createReservation = async (req, res) => {
     total += i.quantity * p;
   }
 
-  const israelTime = DateTime.fromISO(time, {
+  const dt = DateTime.fromISO(time, {
     zone: "Asia/Jerusalem",
-  }).toJSDate();
-  if (isNaN(israelTime.getTime()))
-    return res.status(400).json({ error: "invalid_time" });
+  });
+  if (!dt.isValid) return res.status(400).json({ error: "invalid_time" });
 
+  const minute = dt.minute < 30 ? 0 : 30;
+  const slotDt = dt.set({ minute, second: 0, millisecond: 0 });
+  const slotKey = slotDt.toUTC().toISO({
+    supressSeconds: true,
+    supressMilliseconds: true,
+    includeOffset: false,
+  });
+  const israelTime = slotDt.toJSDate();
+
+  let reserved = false;
+
+  try {
+    let doc = await Slot.findOneAndUpdate(
+      { slotKey, used: { $lt: TABLE_LIMIT } },
+      { $inc: { used: 1 }, $setOnInsert: { limit: TABLE_LIMIT } },
+      { upsert: true, new: true }
+    );
+    if (!doc) return res.status(400).json({ error: "slot_full" });
+    reserved = true;
+  } catch (err) {
+    if (err.code === 11000) {
+      const doc = await Slot.findOneAndUpdate(
+        { slotKey, used: { $lt: TABLE_LIMIT } },
+        { $inc: { used: 1 } },
+        { new: true }
+      );
+      if (!doc) return res.status(400).json({ error: "slot_full" });
+      reserved = true;
+    } else return res.status(500).json({ error: "reserve_failed" });
+  }
   try {
     const newReservation = await Reservation.create({
       userId: req.user.id,
       cart,
       time: israelTime,
+      slotKey,
       total,
     });
     const { _id } = newReservation;
@@ -51,7 +83,14 @@ const createReservation = async (req, res) => {
       },
     });
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.error(err);
+    if (reserved) {
+      await Slot.updateOne(
+        { slotKey, used: { $gt: 0 } },
+        { $inc: { used: -1 } }
+      );
+    }
+    if (err.code === 11000)
+      return res.status(409).json({ error: "duplicate_booking" });
     return res.status(500).json({ error: "internal_server_error" });
   }
 };
