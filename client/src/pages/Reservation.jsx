@@ -6,12 +6,23 @@ import SuccessModal from "../components/SuccessModal";
 
 function Reservation() {
   const { getUserId, user } = useAuth();
-  const { fetchCart, cartItems, cartTotal, cartCount, getCheckoutPayload } =
-    useCart();
+  const {
+    fetchCart,
+    cartItems,
+    cartTotal,
+    cartCount,
+    getCheckoutPayload,
+    clearCart,
+  } = useCart();
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const datetime = `${date}T${time}`;
   const [message, setMessage] = useState("");
+  const [checkoutInfo, setCheckoutInfo] = useState({
+    name: "",
+    food: [],
+    time: "",
+  });
 
   useEffect(() => {
     if (user) fetchCart();
@@ -38,11 +49,17 @@ function Reservation() {
       return;
     }
     setMessage("Success");
+    setCheckoutInfo({
+      name: user.name,
+      food: cartItems,
+      time: datetime,
+    });
+    clearCart();
   };
   return (
     <div>
       {message === "Success" ? (
-        <SuccessModal name={user?.name} food={cartItems} time={datetime} />
+        <SuccessModal info={checkoutInfo} />
       ) : (
         <div>
           {user ? (
