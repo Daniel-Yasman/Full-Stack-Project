@@ -1,4 +1,5 @@
 const Reservation = require("../models/Reservation");
+const User = require("../models/User");
 const Food = require("../models/Food");
 const Slot = require("../models/Slot");
 const { DateTime } = require("luxon");
@@ -72,6 +73,7 @@ const createReservation = async (req, res) => {
       slotKey,
       total,
     });
+    await User.updateOne({ _id: req.user.id }, { $set: { cart: [] } });
     const { _id } = newReservation;
     return res.status(201).json({
       reservation: {
