@@ -8,19 +8,21 @@ function Register() {
   const [phone, setPhone] = useState("");
   const navigate = useNavigate();
   const { register } = useAuth();
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const r = await register(name, email, password, phone);
-    if (!r.ok) {
-      // TODO: show toast based on res.error (e.g., 'email_exists', 'invalid_input')
-      return;
+    try {
+      await register(name, email, password, phone);
+      navigate("/login");
+    } catch (err) {
+      setMessage(err?.body?.error ?? "unknown_error");
     }
-    navigate("/login");
   };
 
   return (
     <div>
+      {message && <div>{message}</div>}
       <div>
         <Link to="/">Home</Link>
       </div>
