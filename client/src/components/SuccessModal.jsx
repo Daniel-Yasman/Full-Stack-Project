@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { DateTime } from "luxon";
 
-function SuccessModal({ name, food, time }) {
+function SuccessModal({ info }) {
+  const { name, food, time } = info;
   return (
     <div className="border-1 p-4 flex flex-col items-center justify-center absolute z-10 bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <Link to="/">X</Link>
