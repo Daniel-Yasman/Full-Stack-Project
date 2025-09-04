@@ -52,6 +52,11 @@ export function CartProvider({ children }) {
     await removeCartItemApi(foodId);
     await fetchCart({ silent: true });
   };
+  const clearCart = async () => {
+    setCartCount(0);
+    setCartTotal(0);
+    setCartItems([]);
+  };
 
   useEffect(() => {
     fetchCart();
@@ -70,6 +75,7 @@ export function CartProvider({ children }) {
         updateCartItem,
         removeCartItem,
         getCheckoutPayload,
+        clearCart,
       }}
     >
       {children}
