@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 import { useAuth } from "../context/AuthContext";
 import { listReservationsApi, deleteReservationApi } from "../lib/reservations";
 function MyReservations() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshMe } = useAuth();
   const [reservations, setReservations] = useState([]);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ function MyReservations() {
       setMessage(r.body?.error);
       had401 = true;
     });
-    if (!had401) setMessage("Success");
+    await refreshMe();
   };
 
   // Turn {message && <p>{message}</p>} into a toast eventually
