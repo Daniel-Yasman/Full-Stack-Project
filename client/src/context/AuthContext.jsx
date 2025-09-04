@@ -8,28 +8,11 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
 
   const register = async (name, email, password, phone) => {
-    try {
-      await registerApi(name, email, password, phone);
-      return;
-    } catch (e) {
-      return {
-        error: e.body?.error || "unknown_error",
-        status: e.status ?? 500,
-      };
-    }
+    return registerApi(name, email, password, phone);
   };
 
   const login = async (email, password) => {
-    try {
-      const data = await loginApi(email, password);
-      setUser(data);
-      return;
-    } catch (e) {
-      return {
-        error: e.body?.error || "unknown_error",
-        status: e.status ?? 500,
-      };
-    }
+    return loginApi(email, password);
   };
 
   async function logout() {
