@@ -75,9 +75,10 @@ function Cart() {
                   <img className="w-25 h-25 rounded-md" src={item.image} />
                 </div>
               ))}
+              <p>{cartTotal.toFixed(2)}$</p>
             </div>
           )}
-          <p>{cartTotal.toFixed(2)}$</p>
+
           {cartCount !== 0 ? <Link to="/reserve">Checkout</Link> : ""}
         </div>
       ) : (
