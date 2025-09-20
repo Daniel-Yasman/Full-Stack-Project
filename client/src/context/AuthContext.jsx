@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
   async function refreshMe() {
     setAuthLoading(true);
     try {
-      const data = await refreshMeApi(() => setUser(null));
+      const data = await refreshMeApi();
       setUser(data);
     } catch {
       setUser(null);
@@ -35,6 +35,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const isAdmin = user?.role === "admin";
   useEffect(() => {
     refreshMe();
   }, []);
@@ -51,6 +52,7 @@ export function AuthProvider({ children }) {
         register,
         login,
         logout,
+        isAdmin,
       }}
     >
       {children}
