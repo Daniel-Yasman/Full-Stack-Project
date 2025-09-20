@@ -50,6 +50,7 @@ const register = async (req, res) => {
       password: passwordHash,
       phone,
       cart: [],
+      role: "user",
     });
     return res
       .status(201)
@@ -80,11 +81,19 @@ const login = async (req, res) => {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ error: "invalid_credentials" });
 
-    const token = sign(user._id);
+    const token = sign(user._id, user.role);
     res
-      .cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
+      .cookie(COOKIE_NAME, token, {
+        ...cookieOptions,
+        maxAge: 4 * 60 * 60 * 1000,
+      })
       .status(200)
-      .json({ id: user._id, name: user.name, email: user.email });
+      .json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "internal_server_error" });
