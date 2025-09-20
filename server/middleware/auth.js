@@ -9,8 +9,8 @@ module.exports = function auth(req, res, next) {
     return res.status(401).json({ error: "unauthorized" });
 
   try {
-    const { sub } = verify(token);
-    req.user = { id: String(sub) };
+    const { sub, role } = verify(token);
+    req.user = { id: String(sub), role };
     return next();
   } catch {
     return res.status(401).json({ error: "unauthorized" });
