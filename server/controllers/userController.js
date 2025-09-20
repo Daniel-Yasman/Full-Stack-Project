@@ -3,6 +3,7 @@ const Food = require("../models/Food");
 const { isValidObjectId } = require("mongoose");
 const MAX_QTY = 10;
 const MIN_QTY = 1;
+
 async function addToCart(req, res) {
   const userId = req.user.id;
   const { foodId, quantity } = req.body;
@@ -21,6 +22,7 @@ async function addToCart(req, res) {
     return res.status(400).json({ error: "invalid_input" });
   if (qty < MIN_QTY) return res.status(400).json({ error: "invalid_input" });
   if (qty > MAX_QTY) return res.status(400).json({ error: "limit_reached" });
+
   try {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: "not_found" });
@@ -45,18 +47,28 @@ async function addToCart(req, res) {
     return res.status(500).json({ error: "internal_server_error" });
   }
 }
+
 async function getCart(req, res) {
   const userId = req.user.id;
   try {
     const user = await User.findById(userId)
       .select("cart")
-      .populate("cart.foodId", "name price image")
+      .populate("cart.foodId", "_id name price image")
       .lean();
+
     if (!user) return res.status(404).json({ error: "not_found" });
-    const total = (user.cart || [])
-      .filter((i) => i.foodId && typeof i.foodId.price == "number")
-      .reduce((sum, i) => sum + i.quantity * i.foodId.price, 0);
-    return res.status(200).json({ cart: user.cart, total });
+
+    // drop any cart entries whose food was deleted (foodId null after populate)
+    const items = (user.cart || []).filter(
+      (i) => i && i.foodId && i.foodId._id
+    );
+
+    const total = items.reduce((sum, i) => {
+      const price = typeof i.foodId.price === "number" ? i.foodId.price : 0;
+      return sum + i.quantity * price;
+    }, 0);
+
+    return res.status(200).json({ cart: items, total });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.error(err);
     return res.status(500).json({ error: "internal_server_error" });
@@ -93,6 +105,7 @@ async function updateCartItem(req, res) {
     return res.status(500).json({ error: "internal_server_error" });
   }
 }
+
 async function removeCartItem(req, res) {
   const { foodId } = req.params;
   const userId = req.user.id;
@@ -122,9 +135,20 @@ async function removeCartItem(req, res) {
   }
 }
 
+async function findByEmail(req, res) {
+  const email = String(req.query.email || "").trim();
+  if (!email) return res.status(400).json({ error: "email_required" });
+  const user = await User.findOne({ email: new RegExp(`^${email}$`, "i") })
+    .select("_id name email")
+    .lean();
+  if (!user) return res.status(404).json({ error: "user_not_found" });
+  res.json(user);
+}
+
 module.exports = {
   addToCart,
   getCart,
   updateCartItem,
   removeCartItem,
+  findByEmail,
 };
