@@ -4,15 +4,14 @@ const Food = require("../models/Food");
 const Slot = require("../models/Slot");
 const { DateTime } = require("luxon");
 const { isValidObjectId } = require("mongoose");
-const TABLE_LIMIT = 2;
+const TABLE_LIMIT = 5;
 
 const createReservation = async (req, res) => {
   const { cart, time } = req.body;
   if (!Array.isArray(cart) || cart.length === 0 || !time)
-    return res.status(400).json({
-      error: "missing_fields",
-      details: ["cart", "time"],
-    });
+    return res
+      .status(400)
+      .json({ error: "missing_fields", details: ["cart", "time"] });
 
   const ids = cart.map((item) => item.foodId);
   const foods = await Food.find({ _id: { $in: ids } })
@@ -30,16 +29,14 @@ const createReservation = async (req, res) => {
     total += i.quantity * p;
   }
 
-  const dt = DateTime.fromISO(time, {
-    zone: "Asia/Jerusalem",
-  });
+  const dt = DateTime.fromISO(time, { zone: "Asia/Jerusalem" });
   if (!dt.isValid) return res.status(400).json({ error: "invalid_time" });
 
   const minute = dt.minute < 30 ? 0 : 30;
   const slotDt = dt.set({ minute, second: 0, millisecond: 0 });
   const slotKey = slotDt.toUTC().toISO({
-    supressSeconds: true,
-    supressMilliseconds: true,
+    suppressSeconds: true,
+    suppressMilliseconds: true,
     includeOffset: false,
   });
   const israelTime = slotDt.toJSDate();
@@ -65,6 +62,7 @@ const createReservation = async (req, res) => {
       reserved = true;
     } else return res.status(500).json({ error: "reserve_failed" });
   }
+
   try {
     const newReservation = await Reservation.create({
       userId: req.user.id,
@@ -141,9 +139,25 @@ const deleteReservation = async (req, res) => {
     return res.status(500).json({ error: "internal_server_error" });
   }
 };
-
+async function listByUser(req, res) {
+  const { userId } = req.query;
+  if (!isValidObjectId(userId))
+    return res.status(400).json({ error: "invalid_userId" });
+  const rows = await Reservation.find({ userId })
+    .select("_id time status notes")
+    .sort({ time: -1 })
+    .lean();
+  res.json({ reservations: rows });
+}
+async function adminDeleteReservation(req, res) {
+  const doc = await Reservation.findByIdAndDelete(req.params.id).lean();
+  if (!doc) return res.status(404).json({ error: "not_found" });
+  res.status(204).end();
+}
 module.exports = {
   createReservation,
   listReservations,
   deleteReservation,
+  listByUser,
+  adminDeleteReservation,
 };
