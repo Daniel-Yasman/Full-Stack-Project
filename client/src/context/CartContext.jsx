@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useAuth } from "./AuthContext";
 import {
   fetchCartApi,
@@ -15,72 +23,118 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  const mapCart = (data) =>
-    data.cart.map(({ foodId: f, quantity }) => ({
+  // prevent overlapping fetches
+  const loadingRef = useRef(false);
+
+  const mapCart = useCallback((data) => {
+    const raw = Array.isArray(data?.cart) ? data.cart : [];
+    const cleaned = raw.filter((it) => it && it.foodId); // drop null/removed foods
+    return cleaned.map(({ foodId: f, quantity }) => ({
       id: f._id || f,
       name: f.name,
       price: f.price,
       image: f.image,
       quantity,
     }));
+  }, []);
 
-  const fetchCart = async ({ silent = false } = {}) => {
-    if (!silent) setLoading(true);
-    try {
-      const data = await fetchCartApi();
-      setCartCount(data.cart.length);
-      setCartItems(mapCart(data));
-      setCartTotal(data.total);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  };
+  const recalc = useCallback((items) => {
+    const total = items.reduce(
+      (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
+      0
+    );
+    const count = items.reduce((s, i) => s + Number(i.quantity || 0), 0);
+    setCartTotal(total);
+    setCartCount(count);
+  }, []);
 
-  const getCheckoutPayload = () => {
+  const fetchCart = useCallback(
+    async ({ silent = false, signal, on401 } = {}) => {
+      if (loadingRef.current) return;
+      loadingRef.current = true;
+      if (!silent) setLoading(true);
+      try {
+        const data = await fetchCartApi({ on401, signal });
+        const items = mapCart(data);
+        setCartItems(items);
+        recalc(items);
+      } finally {
+        loadingRef.current = false;
+        if (!silent) setLoading(false);
+      }
+    },
+    [mapCart, recalc]
+  );
+
+  const getCheckoutPayload = useCallback(() => {
     return cartItems.map((item) => ({
       foodId: item.id,
       quantity: item.quantity,
     }));
-  };
+  }, [cartItems]);
 
-  const updateCartItem = async (foodId, quantity) => {
-    await updateCartItemApi(foodId, quantity);
-    await fetchCart({ silent: true });
-  };
+  const updateCartItem = useCallback(
+    async (foodId, quantity, { on401, signal } = {}) => {
+      await updateCartItemApi(foodId, quantity, { on401, signal });
+      await fetchCart({ silent: true, signal, on401 });
+    },
+    [fetchCart]
+  );
 
-  const removeCartItem = async (foodId) => {
-    await removeCartItemApi(foodId);
-    await fetchCart({ silent: true });
-  };
-  const clearCart = async () => {
+  const removeCartItem = useCallback(
+    async (foodId, { on401, signal } = {}) => {
+      await removeCartItemApi(foodId, { on401, signal });
+      await fetchCart({ silent: true, signal, on401 });
+    },
+    [fetchCart]
+  );
+
+  const clearCart = useCallback(() => {
     setCartCount(0);
     setCartTotal(0);
     setCartItems([]);
-  };
+  }, []);
 
+  // fetch once per user mount, abort on unmount
   useEffect(() => {
-    fetchCart();
-  }, [user]);
+    if (!user) {
+      clearCart();
+      return;
+    }
+    const ctrl = new AbortController();
+    fetchCart({ signal: ctrl.signal });
+    return () => ctrl.abort();
+  }, [user, fetchCart, clearCart]);
 
-  return (
-    <CartContext.Provider
-      value={{
-        user,
-        loading,
-        cartCount,
-        cartTotal,
-        cartItems,
-        fetchCart,
-        setCartCount,
-        updateCartItem,
-        removeCartItem,
-        getCheckoutPayload,
-        clearCart,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      cartCount,
+      cartTotal,
+      cartItems,
+      fetchCart,
+      setCartCount, // if you need it elsewhere
+      updateCartItem,
+      removeCartItem,
+      getCheckoutPayload,
+      clearCart,
+    }),
+    [
+      user,
+      loading,
+      cartCount,
+      cartTotal,
+      cartItems,
+      fetchCart,
+      updateCartItem,
+      removeCartItem,
+      getCheckoutPayload,
+      clearCart,
+    ]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
